@@ -36,7 +36,6 @@ class _BookItemState extends State<BookItem> {
             Container(
               padding: EdgeInsets.all(8), // Padding for text and icon
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.5),
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(16),
                   bottomRight: Radius.circular(16),

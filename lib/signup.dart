@@ -1,8 +1,10 @@
-import 'package:ebook_app/login.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import './config.dart';
+import './main.dart';
 import 'dart:convert';
-import 'package:crypto/crypto.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -15,24 +17,33 @@ class _SignupPageState extends State<SignupPage> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
-      TextEditingController();
+  final TextEditingController confirmPasswordController =TextEditingController();
   final TextEditingController fnameController = TextEditingController(); // Нэр
   final TextEditingController lnameController = TextEditingController(); // Овог
-  /// Password hashing with MD5
-  String hashPassword(String password) {
-    final bytes = utf8.encode(password);
-    final digest = md5.convert(bytes);
-    return digest.toString();
-  }
 
   bool isPasswordVisible = false;
+  Future<bool> verifyCode(String code, String email) async {
+    try {
+      final response = await http.post(
+        Uri.parse(baseUrl + 'user/'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({"action":"token",'email': email, 'token': code}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['resultCode'] == 201;
+      }
+    } catch (e) {
+      print('Алдаа: $e');
+    }
+    return false;
+  }
+
 
   Future<void> registerUser() async {
     if (passwordController.text != confirmPasswordController.text) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Passwords do not match!')));
+      showAlert(context, 'Нууц үг таарахгүй байна!');
       return;
     }
 
@@ -40,57 +51,115 @@ class _SignupPageState extends State<SignupPage> {
       final hashedPassword = hashPassword(passwordController.text);
 
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/register/'),
+        Uri.parse(baseUrl + 'user/'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'username': usernameController.text, // Change 'uname' to 'username'
+          'action': "register",
+          'username': usernameController.text,
           'email': emailController.text,
-          'password': hashedPassword, // Change 'upassword' to 'password'
+          'password': hashedPassword,
         }),
       );
 
-      print('Response body: ${response.body}');
-      print('Response headers: ${response.headers}');
-
-      if (response.statusCode == 201) {
+      if (response.statusCode == 200) {
         final successData = jsonDecode(response.body);
-        String successMessage =
-            successData['resultMessage'] ?? 'Амжилттай бүртгэгдлээ!';
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(successMessage)));
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => LoginPage()),
-        );
-      } else {
-        final errorData = jsonDecode(response.body);
-        String errorMessage =
-            errorData['resultMessage'] ??
-            'Бүртгэл амжилтгүй. Дахин оролдно уу.';
-
-        // Хэрэглэгчийн нэр эсвэл имэйл давхар бүртгэгдсэн тохиолдолд
-        if (errorMessage.contains(
-          'Энэ хэрэглэгчийн нэр аль хэдийн бүртгэгдсэн байна',
-        )) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Энэ хэрэглэгчийн нэр аль хэдийн бүртгэгдсэн байна.',
-              ),
-            ),
-          );
+        if (successData['resultCode'] == 201) {
+          // Баталгаажуулах код авах цонх нээнэ
+          showVerificationDialog(context, emailController.text);
         } else {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(errorMessage)));
+          showAlert(context, successData['resultMessage']);
         }
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Алдаа гарлаа: $e')));
+      showAlert(context, 'Алдаа гарлаа: $e');
     }
+  }
+
+  void showAlert(BuildContext context, String errorMessage) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          errorMessage,
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color.fromARGB(255, 201, 200, 200),
+        duration: Duration(seconds: 3),
+      ),
+    );
+  }
+  void showVerificationDialog(BuildContext context, String email) {
+    TextEditingController verificationCodeController = TextEditingController();
+    int remainingTime = 120; 
+    
+    Timer? timer;
+    void startTimer() {
+      timer = Timer.periodic(Duration(seconds: 1), (Timer t) {
+        if (remainingTime > 0) {
+          remainingTime--;
+        } else {
+          t.cancel();
+          Navigator.pop(context);
+        }
+      });
+    }
+
+    startTimer();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false, 
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (context, setState) {
+          return AlertDialog(
+            title: Text('Код'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('$email хаяг руу илгээлээ.'),
+                TextField(
+                  controller: verificationCodeController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(labelText: 'Код'),
+                ),
+                // SizedBox(height: 10),
+                // Text(
+                //   'Үлдсэн хугацаа: $remainingTime сек',
+                //   style: TextStyle(color: Colors.red),
+                // ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  timer?.cancel();
+                  Navigator.pop(context);
+                },
+                child: Text('Цуцлах'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  String code = verificationCodeController.text.trim();
+                  if (code.isNotEmpty) {
+                    bool isValid = await verifyCode(code, email);
+                    if (isValid) {
+                      timer?.cancel();
+                      Navigator.pop(context);
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginPage()),
+                      );
+                    } else {
+                      showAlert(context, 'Буруу код. Дахин оролдоно уу!');
+                    }
+                  }
+                },
+                child: Text('Шалгах'),
+              ),
+            ],
+          );
+        });
+      },
+    );
   }
 
   @override
@@ -99,7 +168,7 @@ class _SignupPageState extends State<SignupPage> {
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/login.jpeg'), // Background image
+            image: AssetImage('assets/images/login.jpeg'),
             fit: BoxFit.cover,
           ),
         ),
@@ -113,7 +182,6 @@ class _SignupPageState extends State<SignupPage> {
                 child: Container(
                   padding: EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Column(

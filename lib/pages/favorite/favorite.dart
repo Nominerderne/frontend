@@ -81,7 +81,6 @@ class WatchedHistoryTab extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.5),
                   blurRadius: 10,
                   spreadRadius: 2,
                 ),
@@ -153,7 +152,6 @@ class SavedBooksTab extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.5),
                   blurRadius: 10,
                   spreadRadius: 2,
                 ),
