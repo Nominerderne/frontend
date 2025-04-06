@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:ebook_app/pages/home/home.dart';
 import 'package:ebook_app/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -145,7 +146,7 @@ class _LoginPageState extends State<LoginPage> {
           String? rawCookie = response.headers['set-cookie'];
           if (rawCookie != null) {
             String sessionCookie = rawCookie.split(';')[0];
-            await saveSessionCookie(sessionCookie); 
+            await saveSessionCookie(sessionCookie);
             print("Session cookie хадгалагдсан: $sessionCookie");
           }
 
@@ -162,10 +163,14 @@ class _LoginPageState extends State<LoginPage> {
             MaterialPageRoute(builder: (context) => HomePage()),
           );
         } else {
-          showSnackbar("Нэвтрэхэд алдаа гарлаа: ${responseData["resultMessage"]}");
+          showSnackbar(
+            "Нэвтрэхэд алдаа гарлаа: ${responseData["resultMessage"]}",
+          );
         }
       } else {
-        showSnackbar("2Серверээс алдаатай хариу ирлээ (${response.statusCode})");
+        showSnackbar(
+          "2Серверээс алдаатай хариу ирлээ (${response.statusCode})",
+        );
       }
     } catch (e) {
       showSnackbar("Сервертэй холбогдож чадсангүй! Алдаа: $e");
@@ -174,7 +179,9 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void showSnackbar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -203,10 +210,7 @@ class _LoginPageState extends State<LoginPage> {
                   obscureText: true,
                 ),
                 SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: login,
-                  child: Text('Нэвтрэх'),
-                ),
+                ElevatedButton(onPressed: login, child: Text('Нэвтрэх')),
               ],
             ),
           ),
@@ -216,12 +220,12 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-class HomePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Home")),
-      body: Center(child: Text("Welcome to the Home Page!")),
-    );
-  }
-}
+// class HomePage extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(title: Text("Home")),
+//       body: Center(child: Text("Welcome to the Home Page!")),
+//     );
+//   }
+// }

@@ -17,7 +17,8 @@ class _SignupPageState extends State<SignupPage> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
   final TextEditingController fnameController = TextEditingController(); // Нэр
   final TextEditingController lnameController = TextEditingController(); // Овог
 
@@ -27,7 +28,7 @@ class _SignupPageState extends State<SignupPage> {
       final response = await http.post(
         Uri.parse(baseUrl + 'user/'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({"action":"token",'email': email, 'token': code}),
+        body: jsonEncode({"action": "token", 'email': email, 'token': code}),
       );
 
       if (response.statusCode == 200) {
@@ -40,7 +41,6 @@ class _SignupPageState extends State<SignupPage> {
     return false;
   }
 
-
   Future<void> registerUser() async {
     if (passwordController.text != confirmPasswordController.text) {
       showAlert(context, 'Нууц үг таарахгүй байна!');
@@ -49,7 +49,6 @@ class _SignupPageState extends State<SignupPage> {
 
     try {
       final hashedPassword = hashPassword(passwordController.text);
-
       final response = await http.post(
         Uri.parse(baseUrl + 'user/'),
         headers: {'Content-Type': 'application/json'},
@@ -61,14 +60,17 @@ class _SignupPageState extends State<SignupPage> {
         }),
       );
 
+      // Хариу авах
       if (response.statusCode == 200) {
         final successData = jsonDecode(response.body);
         if (successData['resultCode'] == 201) {
-          // Баталгаажуулах код авах цонх нээнэ
           showVerificationDialog(context, emailController.text);
         } else {
           showAlert(context, successData['resultMessage']);
         }
+      } else {
+        // Серверээс 200-с бусад код ирвэл
+        showAlert(context, 'Сервертэй холбогдож чадсангүй.');
       }
     } catch (e) {
       showAlert(context, 'Алдаа гарлаа: $e');
@@ -78,19 +80,17 @@ class _SignupPageState extends State<SignupPage> {
   void showAlert(BuildContext context, String errorMessage) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          errorMessage,
-          style: TextStyle(color: Colors.white),
-        ),
+        content: Text(errorMessage, style: TextStyle(color: Colors.white)),
         backgroundColor: const Color.fromARGB(255, 201, 200, 200),
         duration: Duration(seconds: 3),
       ),
     );
   }
+
   void showVerificationDialog(BuildContext context, String email) {
     TextEditingController verificationCodeController = TextEditingController();
-    int remainingTime = 120; 
-    
+    int remainingTime = 120;
+
     Timer? timer;
     void startTimer() {
       timer = Timer.periodic(Duration(seconds: 1), (Timer t) {
@@ -107,57 +107,59 @@ class _SignupPageState extends State<SignupPage> {
 
     showDialog(
       context: context,
-      barrierDismissible: false, 
+      barrierDismissible: false,
       builder: (BuildContext context) {
-        return StatefulBuilder(builder: (context, setState) {
-          return AlertDialog(
-            title: Text('Код'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text('$email хаяг руу илгээлээ.'),
-                TextField(
-                  controller: verificationCodeController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(labelText: 'Код'),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('Код'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('$email хаяг руу илгээлээ.'),
+                  TextField(
+                    controller: verificationCodeController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(labelText: 'Код'),
+                  ),
+                  // SizedBox(height: 10),
+                  // Text(
+                  //   'Үлдсэн хугацаа: $remainingTime сек',
+                  //   style: TextStyle(color: Colors.red),
+                  // ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    timer?.cancel();
+                    Navigator.pop(context);
+                  },
+                  child: Text('Цуцлах'),
                 ),
-                // SizedBox(height: 10),
-                // Text(
-                //   'Үлдсэн хугацаа: $remainingTime сек',
-                //   style: TextStyle(color: Colors.red),
-                // ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  timer?.cancel();
-                  Navigator.pop(context);
-                },
-                child: Text('Цуцлах'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  String code = verificationCodeController.text.trim();
-                  if (code.isNotEmpty) {
-                    bool isValid = await verifyCode(code, email);
-                    if (isValid) {
-                      timer?.cancel();
-                      Navigator.pop(context);
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => LoginPage()),
-                      );
-                    } else {
-                      showAlert(context, 'Буруу код. Дахин оролдоно уу!');
+                ElevatedButton(
+                  onPressed: () async {
+                    String code = verificationCodeController.text.trim();
+                    if (code.isNotEmpty) {
+                      bool isValid = await verifyCode(code, email);
+                      if (isValid) {
+                        timer?.cancel();
+                        Navigator.pop(context);
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => LoginPage()),
+                        );
+                      } else {
+                        showAlert(context, 'Буруу код. Дахин оролдоно уу!');
+                      }
                     }
-                  }
-                },
-                child: Text('Шалгах'),
-              ),
-            ],
-          );
-        });
+                  },
+                  child: Text('Шалгах'),
+                ),
+              ],
+            );
+          },
+        );
       },
     );
   }

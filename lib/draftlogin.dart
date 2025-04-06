@@ -44,7 +44,7 @@
 //           String? rawCookie = response.headers['set-cookie'];
 //           if (rawCookie != null) {
 //             String sessionCookie = rawCookie.split(';')[0];
-//             await saveSessionCookie(sessionCookie); 
+//             await saveSessionCookie(sessionCookie);
 //             print("Session cookie хадгалагдсан: $sessionCookie");
 //           }
 

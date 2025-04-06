@@ -57,7 +57,9 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
-    'http://192.168.4.3:8000',
+    # 'http://192.168.4.3:8000',
+    # 'http://172.20.10.5:8000',
+    'http://192.168.1.163:8000',
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -219,7 +221,7 @@ def connectDB():
         # host = '59.153.86.251',
         dbname = 'db_100_story', # database name
         user = 'postgres', # databse user 
-        password = '1234', 
+        password = '12345', 
         port = '5432', # postgre port
     )
     return conn
