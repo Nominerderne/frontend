@@ -1,104 +1,51 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
-  _ProfilePageState createState() => _ProfilePageState();
-}
-
-// class Profile {
-//   final String username;
-//   final String email;
-//   final String bio;
-//   final String profileImage;
-
-//   Profile({
-//     required this.username,
-//     required this.email,
-//     required this.bio,
-//     required this.profileImage,
-//   });
-
-//   factory Profile.fromJson(Map<String, dynamic> json) {
-//     return Profile(
-//       username: json['username'],
-//       email: json['email'],
-//       bio: json['bio'],
-//       profileImage: json['profile_image'] ?? '', // Handling null case
-//     );
-//   }
-// }
-
-class ProfilePag extends StatefulWidget {
-  @override
-  _ProfilePageState createState() => _ProfilePageState();
+  State<ProfilePage> createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
   String username = '';
   String email = '';
-  String bio = '';
-  String profileImage = '';
-  bool isLoading = true;
-  String errorMessage = '';
 
   @override
   void initState() {
     super.initState();
+    _loadUserData();
   }
 
-  Future<void> getUserInfo(String token) async {
-    final url = Uri.parse('http://127.0.0.1:8000/api/profile/');
-
-    final response = await http.get(
-      url,
-      headers: {'Authorization': 'Bearer $token'},
-    );
-
-    if (response.statusCode == 200) {
-      final responseData = json.decode(response.body);
-      setState(() {
-        username = responseData['user_info']['username'];
-        email = responseData['user_info']['email'];
-        bio = 'Bio not provided';
-        profileImage = ''; // Profile зураг оруулна уу
-        isLoading = false;
-      });
-    } else {
-      setState(() {
-        errorMessage = 'Алдаа гарлаа: ${response.body}';
-        isLoading = false;
-      });
-    }
+  // Function to load user data from SharedPreferences
+  Future<void> _loadUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      username = prefs.getString('username') ?? 'Unknown User';
+      email = prefs.getString('email') ?? 'Unknown Email';
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Профайл')),
-      body: Center(
-        child:
-            isLoading
-                ? CircularProgressIndicator() // Loading үзүүлж байх
-                : errorMessage.isNotEmpty
-                ? Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(errorMessage, style: TextStyle(color: Colors.red)),
-                  ],
-                )
-                : Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    profileImage.isNotEmpty
-                        ? Image.network(profileImage) // Profile зураг харуулах
-                        : Icon(Icons.account_circle, size: 100), // Icon
-                    Text('Нэвтрэх нэр: $username'),
-                    Text('И-мэйл: $email'),
-                    Text('Биография: $bio'),
-                  ],
-                ),
+      appBar: AppBar(title: Text('Таны мэдээлэл')),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Нэр: $username', style: TextStyle(fontSize: 20)),
+            SizedBox(height: 20),
+            Text('Имэйл: $email', style: TextStyle(fontSize: 20)),
+            SizedBox(height: 40),
+            ElevatedButton(
+              onPressed: () {
+                // Optionally add logout functionality here
+              },
+              child: Text('Гарах'),
+            ),
+          ],
+        ),
       ),
     );
   }
