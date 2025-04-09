@@ -1,3 +1,4 @@
+
 import 'dart:convert';
 import 'package:ebook_app/pages/home/home.dart';
 import 'package:ebook_app/signup.dart';
@@ -126,8 +127,6 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     try {
-      print(email);
-      print(hashPassword(password));
       final response = await http.post(
         Uri.parse(baseUrl + 'user/'),
         headers: {'Content-Type': 'application/json'},
@@ -138,7 +137,6 @@ class _LoginPageState extends State<LoginPage> {
         }),
       );
 
-      print(response.body);
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
@@ -147,7 +145,6 @@ class _LoginPageState extends State<LoginPage> {
           if (rawCookie != null) {
             String sessionCookie = rawCookie.split(';')[0];
             await saveSessionCookie(sessionCookie);
-            print("Session cookie хадгалагдсан: $sessionCookie");
           }
 
           // Хэрэглэгчийн мэдээллийг хадгалах
@@ -174,7 +171,6 @@ class _LoginPageState extends State<LoginPage> {
       }
     } catch (e) {
       showSnackbar("Сервертэй холбогдож чадсангүй! Алдаа: $e");
-      print(e);
     }
   }
 

@@ -1,3 +1,4 @@
+
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -28,7 +29,7 @@ Future<bool> isLoggedIn() async {
   return prefs.getString('session_cookie') != null;
 }
 
-String baseUrl = "http://172.20.10.5:8000/";
+String baseUrl = "http://192.168.4.55:8000/";
 
 String hashPassword(String password) {
   final bytes = utf8.encode(password);

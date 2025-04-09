@@ -1,3 +1,4 @@
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -36,7 +37,7 @@ class _SignupPageState extends State<SignupPage> {
         return data['resultCode'] == 201;
       }
     } catch (e) {
-      print('Алдаа: $e');
+        showAlert(context, 'Алдаа: $e');
     }
     return false;
   }
