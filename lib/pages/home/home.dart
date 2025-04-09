@@ -7,8 +7,7 @@ import 'package:ebook_app/constants/colors.dart';
 import 'package:ebook_app/pages/detail/detail.dart';
 import 'package:ebook_app/pages/home/widgets/book_staggered_gridview.dart';
 import 'package:ebook_app/models/book.dart';
-
-import 'package:ebook_app/pages/page3/bichleg.dart'; // Import HistoryPage
+import 'package:ebook_app/pages/page3/bichleg.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -24,52 +23,62 @@ class _HomePageState extends State<HomePage> {
   final storyPageController = PageController();
   int currentPage = 0;
 
-  final List<Book> stories = Book.generateBooks();
-  final List<Book> favoriteBooks = []; // хадгалсан номын жагсаалт
+  List<Book> allBooks = [];
+  Book? randomBook;
 
-  // Create a list of pages that can be displayed
+  final List<Book> favoriteBooks = [];
   final List<Widget> pages = [];
 
   @override
   void initState() {
     super.initState();
-    // Initialize the pages with HomePage, FavoritePage, HistoryPage, ProfilePage
-    pages.add(
-      Column(
-        children: [
-          _buildStorySlider(),
-          Expanded(
-            child: BookStaggeredGridView(
-              tabIndex,
-              pageController,
-              (int index) => setState(() {
-                tabIndex = index;
-              }),
+    fetchBooksAndInit();
+  }
+
+  Future<void> fetchBooksAndInit() async {
+    // Fetch books and update state
+    allBooks = await Book.fetchBooks(context);
+    randomBook = Book.getRandomBook(allBooks);
+    print("allBooks");
+    print(allBooks);
+
+    setState(() {
+      pages.add(
+        Column(
+          children: [
+            _buildStorySlider(),
+            Expanded(
+              child: BookStaggeredGridView(
+                tabIndex,
+                pageController,
+                (int index) => setState(() {
+                  tabIndex = index;
+                }),
+              ),
             ),
-          ),
-        ],
-      ),
-    );
-    //huudasnuud duudsan
-    // pages.add(FavoritePage(favoriteBooks: favoriteBooks));
-    pages.add(FavoritePage());
-    pages.add(const BichlegPage());
-    pages.add(ProfilePage());
+          ],
+        ),
+      );
+      pages.add(FavoritePage());
+      pages.add(BichlegPage());
+      pages.add(ProfilePage());
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: _buildAppBar(context),
-      body:
-          pages[bottomIndex], // Dynamically change the body based on selected tab
+      appBar: _buildAppBar(),
+      body: pages.isNotEmpty
+          ? pages[bottomIndex]
+          : const Center(child: CircularProgressIndicator()), // Loading indicator
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
 
   Widget _buildStorySlider() {
-    List<Book> limitedStories = stories.take(3).toList();
+    List<Book> limitedStories = allBooks.take(3).toList();
 
     return Column(
       children: [
@@ -126,59 +135,141 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  AppBar? _buildAppBar(BuildContext context) {
-    // Only show AppBar if we're on the "Home" tab
-    if (bottomIndex == 0) {
-      return AppBar(
-        backgroundColor: Color.fromARGB(255, 122, 189, 248),
-        elevation: 0,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.menu_book, color: white),
+  // Update this to display the book list using a for loop
+  Widget _buildBookList() {
+    return ListView.builder(
+      itemCount: allBooks.length,
+      itemBuilder: (context, index) {
+        final book = allBooks[index];
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                ),
+              ],
             ),
-            const SizedBox(width: 8),
-            const Text(
-              "Монгол ардын үлгэр",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.asset(
+                    book.imgUrl, // Ensure this path is correct
+                    width: 130,
+                    height: 100,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        book.name, // Show the name of the book
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Icon(
+                            Icons.favorite,
+                            color: Colors.pink,
+                            size: 28,
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              // Handle remove action here
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: const BoxDecoration(
+                                color: Colors.black12,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.close,
+                                color: Colors.black54,
+                                size: 24,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-        centerTitle: false,
-        actions: [
+          ),
+        );
+      },
+    );
+  }
+
+  AppBar _buildAppBar() {
+    return AppBar(
+      backgroundColor: const Color.fromARGB(255, 122, 189, 248),
+      elevation: 0,
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
           IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => SearchPage()),
-              );
-            },
-            icon: const Icon(Icons.search_outlined, color: white),
+            onPressed: () {},
+            icon: const Icon(Icons.menu_book, color: white),
+          ),
+          const SizedBox(width: 8),
+          const Text(
+            "Монгол ардын үлгэр",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
         ],
-      );
-    }
-    // Return null when no AppBar is needed
-    return null;
+      ),
+      centerTitle: false,
+      actions: [
+        IconButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SearchPage()),
+            );
+          },
+          icon: const Icon(Icons.search_outlined, color: white),
+        ),
+      ],
+    );
   }
 
   Widget _buildBottomNavigationBar() {
     final bottoms = [
-      Icon(Icons.home, size: 30, color: Colors.white),
-      Icon(Icons.favorite, size: 30, color: Colors.white),
-      Icon(Icons.access_time, size: 30, color: Colors.white),
-      Icon(Icons.person, size: 30, color: Colors.white),
+      const Icon(Icons.home, size: 30, color: Colors.white),
+      const Icon(Icons.favorite, size: 30, color: Colors.white),
+      const Icon(Icons.access_time, size: 30, color: Colors.white),
+      const Icon(Icons.person, size: 30, color: Colors.white),
     ];
 
     return CurvedNavigationBar(
       backgroundColor: Colors.white,
-      color: Color.fromARGB(255, 122, 189, 248),
+      color: const Color.fromARGB(255, 122, 189, 248),
       buttonBackgroundColor: Colors.blueAccent,
       height: 60,
       items: bottoms,

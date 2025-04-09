@@ -64,7 +64,7 @@ class BooksTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Book> books = Book.generateBooks();
+    List<Book> books = [];
 
     // Filter books based on the passed bookType ("Үлгэр" or "Домог")
     List<Book> filteredBooks =

@@ -1,126 +1,94 @@
+import 'dart:convert';
 import 'dart:math';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import '../config.dart';
 
 class Book {
-  String type;
-  String name;
-  String publisher;
-  DateTime date;
-  String imgUrl;
-  num score;
-  // num ratings;
-  String review;
-  num height;
-  int duration; // Add a field for duration in minutes
+  final String id;
+  final String name;
+  final String title;
+  final String type;
+  final String publisher;
+  final DateTime date;
+  final String imgUrl;
+  final int score;
+  final String review;
+  final num height; // We keep height as num, but convert from String safely
+  final int duration; // Duration in minutes
 
-  // Constructor
-  Book(
-    this.type,
-    this.name,
-    this.publisher,
-    this.date,
-    this.imgUrl,
-    this.score,
-    // this.ratings,
-    this.review,
-    this.height,
-    this.duration, // Add duration in the constructor
-  );
+  Book({
+    required this.id,
+    required this.title,
+    required this.name,
+    required this.type,
+    required this.publisher,
+    required this.date,
+    required this.imgUrl,
+    required this.score,
+    required this.review,
+    required this.height,
+    required this.duration,
+  });
 
-  // Method to generate a list of books (with the new duration field)
-  static List<Book> generateBooks() {
-    return [
-      Book(
-        'Үлгэр',
-        'Сэргэлэн туулай',
-        'Оюунлаг',
-        DateTime(2025, 2, 25),
-        'assets/images/book1.jpeg',
-        4.7,
-
-        'Сэргэлэн туулайгийн сонирхолтой адал явдал!',
-        220,
-        15, // Duration in minutes
-      ),
-      Book(
-        'Үлгэр',
-        'Эрхий мэргэн',
-        'iStudio',
-        DateTime(2025, 2, 25),
-        'assets/images/book2.jpeg',
-        4.8,
-
-        'Монголын эртний домог дээр үндэслэсэн сонирхолтой түүх.',
-        230,
-        18, // Duration in minutes
-      ),
-      Book(
-        'Үлгэр',
-        'Тэмээ',
-        'iStudio',
-        DateTime(2025, 2, 25),
-        'assets/images/book3.jpeg',
-        4.6,
-
-        'Тэмээ хэрхэн өөрийн онцгой байдлаа олж авсан тухай үлгэр.',
-        200,
-        20, // Duration in minutes
-      ),
-      Book(
-        'Үлгэр',
-        'Болдоггүй бор өвгөн',
-        'iStudio',
-        DateTime(2025, 2, 25),
-        'assets/images/book4.jpeg',
-        4.7,
-
-        'Болдоггүй бор өвгөний гайхамшигтай түүх.',
-        210,
-        16, // Duration in minutes
-      ),
-      Book(
-        'Түүх',
-        'Цуутын цагаагч гүү',
-        'iStudio',
-        DateTime(2025, 2, 25),
-        'assets/images/book5.jpeg',
-        4.3,
-
-        'Монгол ардын домгийн нэгэн алдартай түүх.',
-        240,
-        22, // Duration in minutes
-      ),
-      Book(
-        'Домог',
-        'Алунгоо эх',
-        '',
-        DateTime(2025, 2, 25),
-        'assets/images/book7.jpeg',
-        4.3,
-        '.',
-        240,
-        22,
-      ),
-      Book(
-        'Домог',
-        'Алтан гадас од ба 7 бурхан од',
-        '',
-        DateTime(2025, 2, 25),
-        'assets/images/book6.jpeg',
-        4.3,
-        'Монгол ардын домгийн нэгэн алдартай түүх.',
-        240,
-        22,
-      ),
-    ];
+  factory Book.fromJson(Map<String, dynamic> json) {
+    return Book(
+      id: json['id'].toString(), // Ensure id is a string
+      title: json['title'] ?? '',
+      name: json['name'] ?? '',
+      type: json['type'] ?? '',
+      publisher: json['publisher'] ?? '',
+      date: DateTime.tryParse(json['date']) ?? DateTime(1970), // Parse the date safely
+      imgUrl: json['img_url'] ?? '', // Note: JSON field 'img_url' instead of 'imgUrl'
+      score: json['score'] ?? 0,
+      review: json['review'] ?? '',
+      height: num.tryParse(json['height'].toString()) ?? 0, // Safely convert height
+      duration: int.tryParse(json['duration'].toString()) ?? 0, // Safely convert duration
+    );
   }
 
-  // Function to get a random book from the list
-  static Book getRandomBook() {
-    List<Book> books = generateBooks();
-    Random random = Random();
+  static Future<List<Book>> fetchBooks(BuildContext context) async {
+    final url = Uri.parse(baseUrl + 'book/');
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'action': 'getallbook'}),
+      );
+
+      if (response.statusCode == 200) {
+        final successData = json.decode(response.body);
+        if (successData['resultCode'] == 200) {
+          final List booksJson = successData['data'] ?? [];
+          return booksJson.map((json) => Book.fromJson(json)).toList();
+        } else {
+          _showSnackbar(context, 'Алдаа: ${successData['resultMessage']}');
+        }
+      } else {
+        _showSnackbar(context, 'Сервертэй холбогдож чадсангүй.');
+      }
+    } catch (e) {
+      print(e);
+      _showSnackbar(context, 'Алдаа гарлаа: $e');
+    }
+    print("return []");
+    return [];
+  }
+
+  static Book getRandomBook(List<Book> books) {
+    
+    print("books");
+    for (var element in books) {
+      print(element);
+      print(element.duration);
+      
+    }
+    if (books.isEmpty) return Book(id: '', title: '', name: '', type: '', publisher: '', date: DateTime.now(), imgUrl: '', score: 0, review: '', height: 0, duration: 0);
+    final random = Random();
     return books[random.nextInt(books.length)];
   }
-}
 
-// Sample usage: Get a random book
-final Book selectedBook = Book.getRandomBook();
+  static void _showSnackbar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+}
