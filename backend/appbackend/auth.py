@@ -100,8 +100,6 @@ def dt_register(request):
             respData = [{"username":username,"email":email}]
             resp = sendResponse(request, 3008, respData, action) 
     except (Exception) as e:
-        action = jsons["action"]
-        print(str(e))
         respData = [{"aldaa":str(e)}] 
         resp = sendResponse(request, 5000, respData, action) 
         
