@@ -28,7 +28,7 @@ Future<bool> isLoggedIn() async {
   return prefs.getString('session_cookie') != null;
 }
 
-String baseUrl = "http://192.168.1.163:8000/";
+String baseUrl = "http://172.20.10.5:8000/";
 
 String hashPassword(String password) {
   final bytes = utf8.encode(password);
