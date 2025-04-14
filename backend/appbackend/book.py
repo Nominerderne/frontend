@@ -13,7 +13,7 @@ def dt_getallbook(request):
     myConn = connectDB() 
     try: 
         cursor = myConn.cursor() 
-        query = F"""SELECT id, type, name, publisher, date, img_url, score, review, height, duration 
+        query = F"""SELECT id, type, name, date, img_url, score, height, duration, title, turul, review
 	                FROM public.books;
                 """ 
         cursor.execute(query) 

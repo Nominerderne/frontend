@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'package:ebook_app/pages/home/home.dart';
 import 'package:ebook_app/signup.dart';
@@ -137,7 +136,6 @@ class _LoginPageState extends State<LoginPage> {
         }),
       );
 
-
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         if (responseData["resultCode"] == 200) {
@@ -215,13 +213,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-
-// class HomePage extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(title: Text("Home")),
-//       body: Center(child: Text("Welcome to the Home Page!")),
-//     );
-//   }
-// }

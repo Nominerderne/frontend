@@ -26,15 +26,21 @@ class BookStaggeredGridView extends StatelessWidget {
       future: fetchBooks(context), // Асинхрон функц дуудах
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator()); // Ачаалж байгаа үед харуулах
+          return Center(
+            child: CircularProgressIndicator(),
+          ); // Ачаалж байгаа үед харуулах
         }
-        
+
         if (snapshot.hasError) {
-          return Center(child: Text('Алдаа: ${snapshot.error}')); // Алдаа гарсан бол харуулах
+          return Center(
+            child: Text('Алдаа: ${snapshot.error}'),
+          ); // Алдаа гарсан бол харуулах
         }
-        
+
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(child: Text('Ном олдсонгүй')); // Ном байхгүй бол харуулах
+          return Center(
+            child: Text('Ном олдсонгүй'),
+          ); // Ном байхгүй бол харуулах
         }
 
         List<Book> bookList = snapshot.data!; // bookList хадгалах
@@ -51,7 +57,9 @@ class BookStaggeredGridView extends StatelessWidget {
                 mainAxisSpacing: 16,
                 crossAxisSpacing: 16,
                 itemCount: bookList.length,
-                itemBuilder: (context, index) => BookItem(bookList[index]), // BookItem холбох
+                itemBuilder:
+                    (context, index) =>
+                        BookItem(bookList[index]), // BookItem холбох
               ),
               Container(), // 2 дахь хуудас
             ],

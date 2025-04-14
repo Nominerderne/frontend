@@ -1,8 +1,10 @@
 from django.urls import path
-from appbackend import auth, edituser, book
+from appbackend import auth, edituser, book,search
 
 urlpatterns = [
     path('user/', auth.checkService),
     path('useredit/', edituser.editcheckService),
     path('book/', book.editcheckService),
+    path("search/", search.searchBookService),
+    path("search/options/", search.get_options),
 ]

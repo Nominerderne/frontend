@@ -11,7 +11,7 @@ class BookItem extends StatefulWidget {
 }
 
 class _BookItemState extends State<BookItem> {
-  bool isFavorite = false; // Track the heart icon state
+  bool isFavorite = false;
 
   @override
   Widget build(BuildContext context) {
@@ -21,65 +21,88 @@ class _BookItemState extends State<BookItem> {
             MaterialPageRoute(builder: (context) => DetailPage(widget.book)),
           ),
       child: Container(
-        height: widget.book.height as double,
+        width: 160,
+        height: 200,
+        margin: EdgeInsets.all(8),
         decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(widget.book.imgUrl),
-            fit: BoxFit.cover,
-          ),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end, // Align items at the bottom
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: EdgeInsets.all(8), // Padding for text and icon
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(16),
-                  bottomRight: Radius.circular(16),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    // Make the text widget flexible so it takes up available space
-                    child: Text(
-                      widget.book.name, // Book name text
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      overflow:
-                          TextOverflow
-                              .ellipsis, // Handles text overflow with "..."
-                      maxLines:
-                          1, // Ensure the text doesn't wrap into multiple lines
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        isFavorite = !isFavorite; // Toggle the heart icon
-                      });
-                    },
-                    child: Icon(
-                      isFavorite
-                          ? Icons.favorite
-                          : Icons.favorite_border, // Toggle icon
-                      color:
-                          isFavorite
-                              ? Colors.red
-                              : Colors.white, // Red when favorite
-                    ),
-                  ),
-                ],
-              ),
+          borderRadius: BorderRadius.circular(24),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 6,
+              offset: Offset(0, 4),
             ),
           ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: Stack(
+            children: [
+              // Background image
+              Positioned.fill(
+                child: Image.asset(widget.book.imgUrl, fit: BoxFit.cover),
+              ),
+              // Gradient overlay (optional - adds a dreamy look)
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.transparent,
+                        Colors.white.withOpacity(0.9),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                  ),
+                ),
+              ),
+              // Bottom section with title and icon
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.95),
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(24),
+                      bottomRight: Radius.circular(24),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          widget.book.title,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: Colors.black87,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            isFavorite = !isFavorite;
+                          });
+                        },
+                        child: Icon(
+                          isFavorite ? Icons.favorite : Icons.favorite_border,
+                          color: isFavorite ? Colors.red : Colors.grey,
+                          size: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -70,9 +70,12 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: _buildAppBar(),
-      body: pages.isNotEmpty
-          ? pages[bottomIndex]
-          : const Center(child: CircularProgressIndicator()), // Loading indicator
+      body:
+          pages.isNotEmpty
+              ? pages[bottomIndex]
+              : const Center(
+                child: CircularProgressIndicator(),
+              ), // Loading indicator
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
@@ -149,12 +152,7 @@ class _HomePageState extends State<HomePage> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  blurRadius: 10,
-                  spreadRadius: 2,
-                ),
-              ],
+              boxShadow: [BoxShadow(blurRadius: 10, spreadRadius: 2)],
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -174,7 +172,7 @@ class _HomePageState extends State<HomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        book.name, // Show the name of the book
+                        book.title, // Show the name of the book
                         style: const TextStyle(
                           color: Colors.black,
                           fontSize: 18,
@@ -226,6 +224,8 @@ class _HomePageState extends State<HomePage> {
     return AppBar(
       backgroundColor: const Color.fromARGB(255, 122, 189, 248),
       elevation: 0,
+      automaticallyImplyLeading: false,
+
       title: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
@@ -250,7 +250,7 @@ class _HomePageState extends State<HomePage> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => SearchPage()),
+              MaterialPageRoute(builder: (context) => SearchScreen()),
             );
           },
           icon: const Icon(Icons.search_outlined, color: white),

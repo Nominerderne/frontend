@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -38,10 +37,7 @@ class _ProfilePageState extends State<ProfilePage> {
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'action': 'getuserinfo',
-          "userid": userid,
-        }),
+        body: jsonEncode({'action': 'getuserinfo', "userid": userid}),
       );
 
       if (response.statusCode == 200) {
@@ -51,11 +47,15 @@ class _ProfilePageState extends State<ProfilePage> {
             usernameController.text = responseData['data'][0]['username'] ?? "";
             emailController.text = responseData['data'][0]['email'] ?? "";
             bioController.text = responseData['data'][0]['bio'] ?? "";
-            profileImageBase64 = responseData['data'][0]['profileimagebase64'] ?? "";
+            profileImageBase64 =
+                responseData['data'][0]['profileimagebase64'] ?? "";
 
-            if (profileImageBase64.isNotEmpty && profileImageBase64.contains("base64")) {
+            if (profileImageBase64.isNotEmpty &&
+                profileImageBase64.contains("base64")) {
               try {
-                profileImageBytes = base64Decode(profileImageBase64.split(',').last);
+                profileImageBytes = base64Decode(
+                  profileImageBase64.split(',').last,
+                );
               } catch (e) {
                 profileImageBytes = null;
                 print("Base64 decoding алдаа: $e");
@@ -84,7 +84,8 @@ class _ProfilePageState extends State<ProfilePage> {
           final webImageBytes = await image.readAsBytes();
           setState(() {
             profileImageBytes = webImageBytes;
-            profileImageBase64 = 'data:image/png;base64,${base64Encode(webImageBytes)}';
+            profileImageBase64 =
+                'data:image/png;base64,${base64Encode(webImageBytes)}';
           });
         } else {
           final bytes = await File(image.path).readAsBytes();
@@ -95,7 +96,7 @@ class _ProfilePageState extends State<ProfilePage> {
         }
       }
     } catch (e) {
-        print(e);
+      print(e);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Зураг сонгоход алдаа гарлаа: $e')),
       );
@@ -151,49 +152,99 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Профайл')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: isLoading
-            ? Center(child: CircularProgressIndicator())
-            : SingleChildScrollView(
-                child: Column(
-                  children: [
-                    CircleAvatar(
-                      radius: 60,
-                      backgroundImage: profileImageBytes != null
-                          ? MemoryImage(profileImageBytes!)
-                          : AssetImage('assets/images/profile.jpeg') as ImageProvider,
-                    ),
-                    SizedBox(height: 10),
-                    ElevatedButton(
-                      onPressed: _pickImage,
-                      child: Text('Зураг солих'),
-                    ),
-                    SizedBox(height: 20),
-                    TextFormField(
-                      controller: usernameController,
-                      decoration: InputDecoration(labelText: 'Нэвтрэх нэр'),
-                    ),
-                    SizedBox(height: 10),
-                    TextFormField(
-                      controller: emailController,
-                      decoration: InputDecoration(labelText: 'И-мэйл'),
-                    ),
-                    SizedBox(height: 10),
-                    TextFormField(
-                      controller: bioController,
-                      decoration: InputDecoration(labelText: 'Биография'),
-                      maxLines: 3,
-                    ),
-                    SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: updateUserProfile,
-                      child: Text('Шинэчлэх'),
-                    ),
-                  ],
+        child:
+            isLoading
+                ? Center(child: CircularProgressIndicator())
+                : SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Center(
+                        child: Stack(
+                          children: [
+                            CircleAvatar(
+                              radius: 60,
+                              backgroundImage:
+                                  profileImageBytes != null
+                                      ? MemoryImage(profileImageBytes!)
+                                      : AssetImage('assets/images/profile.jpeg')
+                                          as ImageProvider,
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              right: 4,
+                              child: GestureDetector(
+                                onTap: _pickImage,
+                                child: Container(
+                                  padding: EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.white,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        blurRadius: 4,
+                                        color: Colors.black26,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Icon(
+                                    Icons.camera_alt,
+                                    size: 20,
+                                    color: const Color.fromARGB(
+                                      255,
+                                      89,
+                                      139,
+                                      225,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      TextFormField(
+                        controller: usernameController,
+                        decoration: InputDecoration(
+                          labelText: 'Нэвтрэх нэр',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: emailController,
+                        decoration: InputDecoration(
+                          labelText: 'И-мэйл',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: bioController,
+                        maxLines: 3,
+                        decoration: InputDecoration(
+                          labelText: 'Биография',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      ElevatedButton.icon(
+                        onPressed: updateUserProfile,
+                        icon: Icon(Icons.save),
+                        label: Text("Хадгалах"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blueAccent,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 12,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
       ),
     );
   }

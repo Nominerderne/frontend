@@ -10,28 +10,6 @@ class BichlegPage extends StatelessWidget {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Color.fromARGB(255, 122, 189, 248),
-          elevation: 0,
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.menu_book, color: Colors.white),
-              ),
-              const SizedBox(width: 8),
-              const Text(
-                "Монгол ардын үлгэр",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ),
         body: Column(
           children: [
             const TabBar(
