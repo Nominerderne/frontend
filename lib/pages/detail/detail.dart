@@ -4,7 +4,7 @@ import 'package:ebook_app/pages/detail/widgets/book_cover.dart';
 
 import 'package:ebook_app/pages/detail/widgets/book_review.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Make sure to import this for DateFormat
+// import 'package:intl/intl.dart'; // Make sure to import this for DateFormat
 
 class DetailPage extends StatelessWidget {
   final Book book;

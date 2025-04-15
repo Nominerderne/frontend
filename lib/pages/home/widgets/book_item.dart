@@ -1,5 +1,6 @@
 import 'package:ebook_app/models/book.dart';
 import 'package:ebook_app/pages/detail/detail.dart';
+import 'package:ebook_app/pages/favorite/favorite_service.dart';
 import 'package:flutter/material.dart';
 
 class BookItem extends StatefulWidget {
@@ -12,6 +13,21 @@ class BookItem extends StatefulWidget {
 
 class _BookItemState extends State<BookItem> {
   bool isFavorite = false;
+
+  void _toggleFavorite() async {
+    setState(() {
+      isFavorite = !isFavorite;
+    });
+
+    if (isFavorite) {
+      await FavoriteService.addFavorite({
+        'id': widget.book.id,
+        'title': widget.book.title,
+        'imgUrl': widget.book.imgUrl,
+        'author': widget.book.name,
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,11 +55,9 @@ class _BookItemState extends State<BookItem> {
           borderRadius: BorderRadius.circular(24),
           child: Stack(
             children: [
-              // Background image
               Positioned.fill(
                 child: Image.asset(widget.book.imgUrl, fit: BoxFit.cover),
               ),
-              // Gradient overlay (optional - adds a dreamy look)
               Positioned.fill(
                 child: Container(
                   decoration: BoxDecoration(
@@ -58,7 +72,6 @@ class _BookItemState extends State<BookItem> {
                   ),
                 ),
               ),
-              // Bottom section with title and icon
               Positioned(
                 bottom: 0,
                 left: 0,
@@ -86,11 +99,7 @@ class _BookItemState extends State<BookItem> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            isFavorite = !isFavorite;
-                          });
-                        },
+                        onTap: _toggleFavorite,
                         child: Icon(
                           isFavorite ? Icons.favorite : Icons.favorite_border,
                           color: isFavorite ? Colors.red : Colors.grey,

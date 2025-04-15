@@ -1,3 +1,4 @@
+import 'package:ebook_app/pages/detail/detail.dart';
 import 'package:flutter/material.dart';
 import 'package:ebook_app/models/book.dart';
 
@@ -8,87 +9,202 @@ class BookCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 10,
-            spreadRadius: 2,
-          ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Wrapping the image with Flexible to make it responsive
-          Flexible(
-            flex: 0, // Ensure image width remains consistent
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.asset(
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => DetailPage(book)),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: BoxDecoration(
+          color: const Color.fromARGB(255, 107, 136, 218),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            // Зураг
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                bottomLeft: Radius.circular(16),
+              ),
+              child: Image.network(
                 book.imgUrl,
+                width: 100,
+                height: 150,
                 fit: BoxFit.cover,
-                height: 100, // Maintain a constant height
-                width: 130, // Set a fixed width for the image to avoid overflow
+                errorBuilder:
+                    (context, error, stackTrace) => Container(
+                      width: 100,
+                      height: 150,
+                      color: Colors.grey.shade300,
+                      child: const Icon(
+                        Icons.image_not_supported,
+                        color: Colors.grey,
+                      ),
+                    ),
               ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  book.name,
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+            // Мэдээлэл
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  book.review,
-                  style: const TextStyle(color: Colors.grey, fontSize: 14),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(
+                      book.title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
                     Row(
                       children: [
                         const Icon(
                           Icons.access_time,
-                          color: Colors.green,
-                          size: 18,
+                          size: 16,
+                          color: Colors.greenAccent,
                         ),
+                        const SizedBox(width: 4),
                         Text(
-                          "${book.duration} мин", // minut
-                          style: const TextStyle(color: Colors.black54),
+                          "${book.duration} мин",
+                          style: const TextStyle(color: Colors.white),
                         ),
-                        const SizedBox(width: 18),
-                        const Icon(Icons.star, color: Colors.orange, size: 18),
+                        const SizedBox(width: 12),
+                        const Icon(Icons.star, size: 16, color: Colors.orange),
+                        const SizedBox(width: 4),
                         Text(
-                          "${book.score}", //  vnelgee
-                          style: const TextStyle(color: Colors.black54),
+                          "${book.score}/10",
+                          style: const TextStyle(color: Colors.white),
                         ),
                       ],
                     ),
+                    const SizedBox(height: 12),
+                    Text(
+                      book.review.length > 100
+                          ? "${book.review.substring(0, 100)}..."
+                          : book.review,
+                      style: const TextStyle(color: Colors.white70),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
+
+// import 'package:flutter/material.dart';
+
+// class BookCard extends StatelessWidget {
+//   final Map<String, dynamic> book;
+
+//   const BookCard({Key? key, required this.book}) : super(key: key);
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return GestureDetector(
+//       onTap: () {
+//         // If you want to navigate to a detail page, add that here
+//       },
+//       child: Container(
+//         margin: const EdgeInsets.only(bottom: 16),
+//         decoration: BoxDecoration(
+//           color: const Color.fromARGB(255, 107, 136, 218),
+//           borderRadius: BorderRadius.circular(16),
+//         ),
+//         child: Row(
+//           children: [
+//             ClipRRect(
+//               borderRadius: const BorderRadius.only(
+//                 topLeft: Radius.circular(16),
+//                 bottomLeft: Radius.circular(16),
+//               ),
+//               child: Image.network(
+//                 book['img_url'] ?? 'https://example.com/default_image.jpg',
+//                 width: 100,
+//                 height: 150,
+//                 fit: BoxFit.cover,
+//                 errorBuilder:
+//                     (context, error, stackTrace) => Container(
+//                       width: 100,
+//                       height: 150,
+//                       color: Colors.grey.shade300,
+//                       child: const Icon(
+//                         Icons.image_not_supported,
+//                         color: Colors.grey,
+//                       ),
+//                     ),
+//               ),
+//             ),
+//             Expanded(
+//               child: Padding(
+//                 padding: const EdgeInsets.symmetric(
+//                   horizontal: 12,
+//                   vertical: 10,
+//                 ),
+//                 child: Column(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     Text(
+//                       book['name'] ?? 'Нэр байхгүй',
+//                       style: const TextStyle(
+//                         color: Colors.white,
+//                         fontSize: 18,
+//                         fontWeight: FontWeight.bold,
+//                       ),
+//                     ),
+//                     const SizedBox(height: 8),
+//                     Row(
+//                       children: [
+//                         const Icon(
+//                           Icons.access_time,
+//                           size: 16,
+//                           color: Colors.greenAccent,
+//                         ),
+//                         const SizedBox(width: 4),
+//                         Text(
+//                           "${book['duration'] ?? 0} мин",
+//                           style: const TextStyle(color: Colors.white),
+//                         ),
+//                         const SizedBox(width: 12),
+//                         const Icon(Icons.star, size: 16, color: Colors.orange),
+//                         const SizedBox(width: 4),
+//                         Text(
+//                           "${book['score'] ?? 0}/10",
+//                           style: const TextStyle(color: Colors.white),
+//                         ),
+//                       ],
+//                     ),
+//                     const SizedBox(height: 12),
+//                     Text(
+//                       (book['review'] ?? '').toString().length > 100
+//                           ? "${book['review'].substring(0, 100)}..."
+//                           : (book['review'] ?? 'No review available'),
+//                       style: const TextStyle(color: Colors.white70),
+//                       maxLines: 3,
+//                       overflow: TextOverflow.ellipsis,
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }

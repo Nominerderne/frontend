@@ -104,7 +104,6 @@ class Book {
   final String name;
   final String title;
   final String type;
-  // final String publisher;
   final DateTime date;
   final String imgUrl;
   final int score;
