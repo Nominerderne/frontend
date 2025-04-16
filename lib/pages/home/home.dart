@@ -29,8 +29,6 @@ class _HomePageState extends State<HomePage> {
   Book? randomBook;
   List<Map<String, dynamic>> favoriteBooks = [];
 
-  final List<Widget> pages = [];
-
   @override
   void initState() {
     super.initState();
@@ -38,59 +36,45 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> fetchBooksAndInit() async {
-    // Fetch books and favorite state
     allBooks = await Book.fetchBooks(context);
     randomBook = Book.getRandomBook(allBooks);
     favoriteBooks = await FavoriteService.getFavorites();
-
-    setState(() {
-      // Home Page (book grid) page
-      pages.add(
-        Column(
-          children: [
-            _buildStorySlider(),
-            Expanded(
-              child: BookStaggeredGridView(
-                tabIndex, // tabIndex
-                pageController, // pageController
-                (int index, List<Map<String, dynamic>> updatedFavorites) {
-                  setState(() {
-                    tabIndex = index;
-                    favoriteBooks =
-                        updatedFavorites; // Шинэчилсэн дуртай номын жагсаалт
-                  });
-                }, // callback function
-                favoriteBooks, // favoriteBooks
-              ),
-            ),
-          ],
-        ),
-      );
-
-      // Add FavoritePage as a new page
-      pages.add(
-        FavoritePage(
-          favoriteBooks: favoriteBooks,
-        ), // Pass favoriteBooks to FavoritePage
-      );
-
-      // Other pages (Bichleg, Profile)
-      pages.add(BichlegPage());
-      pages.add(ProfilePage());
-    });
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    // ✅ pages жагсаалтыг build() функц дотор үүсгэж байна
+    final List<Widget> pages = [
+      Column(
+        children: [
+          _buildStorySlider(),
+          Expanded(
+            child: BookStaggeredGridView(tabIndex, pageController, (
+              int index,
+              List<Map<String, dynamic>> updatedFavorites,
+            ) {
+              setState(() {
+                tabIndex = index;
+                favoriteBooks =
+                    updatedFavorites; // favorite шинэчлэгдэж энд ирж байна
+              });
+            }, favoriteBooks),
+          ),
+        ],
+      ),
+      FavoritePage(favoriteBooks: favoriteBooks),
+      BichlegPage(),
+      ProfilePage(),
+    ];
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: _buildAppBar(),
       body:
           pages.isNotEmpty
-              ? pages[bottomIndex] // Based on bottomIndex, switch pages
-              : const Center(
-                child: CircularProgressIndicator(),
-              ), // Loading indicator
+              ? pages[bottomIndex]
+              : const Center(child: CircularProgressIndicator()),
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
@@ -153,22 +137,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildBookList() {
-    return ListView.builder(
-      itemCount: allBooks.length,
-      itemBuilder: (context, index) {
-        final book = allBooks[index];
-        final isFavorite = favoriteBooks.any(
-          (favBook) => favBook['id'] == book.id,
-        );
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: BookItem(book: allBooks[index], isFavorite: isFavorite),
-        );
-      },
-    );
-  }
-
   AppBar _buildAppBar() {
     return AppBar(
       backgroundColor: const Color.fromARGB(255, 122, 189, 248),
@@ -223,7 +191,7 @@ class _HomePageState extends State<HomePage> {
       items: bottoms,
       onTap: (index) {
         setState(() {
-          bottomIndex = index; // Set bottomIndex to navigate
+          bottomIndex = index;
         });
       },
     );
