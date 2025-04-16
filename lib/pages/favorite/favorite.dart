@@ -196,7 +196,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class FavoritePage extends StatelessWidget {
-  const FavoritePage({Key? key}) : super(key: key);
+  final List<Map<String, dynamic>> favoriteBooks;
+  const FavoritePage({Key? key, required this.favoriteBooks}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

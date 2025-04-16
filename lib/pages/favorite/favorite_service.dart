@@ -30,4 +30,16 @@ class FavoriteService {
       throw Exception('Хадгалсан ном авах үед алдаа гарлаа');
     }
   }
+
+  static Future<void> removeFavorite(String bookId) async {
+    final response = await http.post(
+      Uri.parse(baseUrl),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({'action': 'remove', 'book_id': bookId}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Хадгалсан ном устгах үед алдаа гарлаа');
+    }
+  }
 }

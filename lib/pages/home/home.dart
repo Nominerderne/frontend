@@ -1,5 +1,7 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:ebook_app/pages/favorite/favorite.dart';
+import 'package:ebook_app/pages/favorite/favorite_service.dart';
+import 'package:ebook_app/pages/home/widgets/book_item.dart';
 import 'package:ebook_app/pages/profile.dart';
 import 'package:ebook_app/pages/search.dart';
 import 'package:flutter/material.dart';
@@ -25,8 +27,8 @@ class _HomePageState extends State<HomePage> {
 
   List<Book> allBooks = [];
   Book? randomBook;
+  List<Map<String, dynamic>> favoriteBooks = [];
 
-  final List<Book> favoriteBooks = [];
   final List<Widget> pages = [];
 
   @override
@@ -36,30 +38,43 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> fetchBooksAndInit() async {
-    // Fetch books and update state
+    // Fetch books and favorite state
     allBooks = await Book.fetchBooks(context);
     randomBook = Book.getRandomBook(allBooks);
-    print("allBooks");
-    print(allBooks);
+    favoriteBooks = await FavoriteService.getFavorites();
 
     setState(() {
+      // Home Page (book grid) page
       pages.add(
         Column(
           children: [
             _buildStorySlider(),
             Expanded(
               child: BookStaggeredGridView(
-                tabIndex,
-                pageController,
-                (int index) => setState(() {
-                  tabIndex = index;
-                }),
+                tabIndex, // tabIndex
+                pageController, // pageController
+                (int index, List<Map<String, dynamic>> updatedFavorites) {
+                  setState(() {
+                    tabIndex = index;
+                    favoriteBooks =
+                        updatedFavorites; // Шинэчилсэн дуртай номын жагсаалт
+                  });
+                }, // callback function
+                favoriteBooks, // favoriteBooks
               ),
             ),
           ],
         ),
       );
-      pages.add(FavoritePage());
+
+      // Add FavoritePage as a new page
+      pages.add(
+        FavoritePage(
+          favoriteBooks: favoriteBooks,
+        ), // Pass favoriteBooks to FavoritePage
+      );
+
+      // Other pages (Bichleg, Profile)
       pages.add(BichlegPage());
       pages.add(ProfilePage());
     });
@@ -72,7 +87,7 @@ class _HomePageState extends State<HomePage> {
       appBar: _buildAppBar(),
       body:
           pages.isNotEmpty
-              ? pages[bottomIndex]
+              ? pages[bottomIndex] // Based on bottomIndex, switch pages
               : const Center(
                 child: CircularProgressIndicator(),
               ), // Loading indicator
@@ -138,83 +153,17 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Update this to display the book list using a for loop
   Widget _buildBookList() {
     return ListView.builder(
       itemCount: allBooks.length,
       itemBuilder: (context, index) {
         final book = allBooks[index];
+        final isFavorite = favoriteBooks.any(
+          (favBook) => favBook['id'] == book.id,
+        );
         return Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [BoxShadow(blurRadius: 10, spreadRadius: 2)],
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.asset(
-                    book.imgUrl, // Ensure this path is correct
-                    width: 130,
-                    height: 100,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        book.title, // Show the name of the book
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Icon(
-                            Icons.favorite,
-                            color: Colors.pink,
-                            size: 28,
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              // Handle remove action here
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: const BoxDecoration(
-                                color: Colors.black12,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.close,
-                                color: Colors.black54,
-                                size: 24,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+          child: BookItem(book: allBooks[index], isFavorite: isFavorite),
         );
       },
     );
@@ -225,7 +174,6 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: const Color.fromARGB(255, 122, 189, 248),
       elevation: 0,
       automaticallyImplyLeading: false,
-
       title: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
@@ -275,7 +223,7 @@ class _HomePageState extends State<HomePage> {
       items: bottoms,
       onTap: (index) {
         setState(() {
-          bottomIndex = index;
+          bottomIndex = index; // Set bottomIndex to navigate
         });
       },
     );

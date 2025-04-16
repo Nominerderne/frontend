@@ -2,7 +2,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
 
-favorite_books = []  # Түр хадгалах санах ой
+favorite_books = []  # Түр хадгалах жагсаалт
 
 @csrf_exempt
 def favoriteService(request):
@@ -20,6 +20,16 @@ def favoriteService(request):
 
         elif action == 'get':
             return JsonResponse({'data': favorite_books}, status=200)
+
+        elif action == 'remove':
+            book_id = data.get('book_id')
+            if book_id:
+                for book in favorite_books:
+                    if str(book.get('id')) == str(book_id):
+                        favorite_books.remove(book)
+                        return JsonResponse({'message': 'Ном устгагдлаа'}, status=200)
+                return JsonResponse({'message': 'Ном олдсонгүй'}, status=404)
+            return JsonResponse({'message': 'Номын ID дутуу байна'}, status=400)
 
         return JsonResponse({'message': 'Action олдсонгүй'}, status=400)
 
