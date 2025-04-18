@@ -1,6 +1,8 @@
 import 'package:ebook_app/constants/colors.dart';
 import 'package:ebook_app/models/book.dart';
+import 'package:ebook_app/pages/detail/review_service.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BookReview extends StatefulWidget {
   final Book book;
@@ -12,6 +14,33 @@ class BookReview extends StatefulWidget {
 
 class _BookReviewState extends State<BookReview> {
   bool isPlaying = false;
+  int userRating = 0;
+  List<Map<String, dynamic>> _otherReviews = [];
+  String currentUserId = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCurrentUser();
+  }
+
+  Future<void> _loadCurrentUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      currentUserId = prefs.getInt('userid')?.toString() ?? '';
+    });
+    await _loadReviews();
+  }
+
+  Future<void> _loadReviews() async {
+    final result = await ReviewService.fetchReviewsWithRating(
+      int.tryParse(widget.book.id) ?? 0,
+    );
+    setState(() {
+      _otherReviews = List<Map<String, dynamic>>.from(result['reviews']);
+      userRating = result['user_rating'] ?? 0;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,24 +53,21 @@ class _BookReviewState extends State<BookReview> {
         children: [
           Row(
             children: [
-              Text(
-                '${book.score}',
-                style: const TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              // Text(
+              //   '${book.score}',
+              //   style: const TextStyle(
+              //     fontSize: 26,
+              //     fontWeight: FontWeight.bold,
+              //   ),
+              // ),
               const SizedBox(width: 10),
-              _buildStar(),
+              _buildInteractiveStars(),
             ],
           ),
           const SizedBox(height: 15),
-          const SizedBox(height: 10),
-
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Дээр нь бага зэрэг өргөсөн icon
               Transform.translate(
                 offset: const Offset(0, 3),
                 child: GestureDetector(
@@ -71,21 +97,72 @@ class _BookReviewState extends State<BookReview> {
               ),
             ],
           ),
+          const SizedBox(height: 20),
+          const Text(
+            'Бусдын сэтгэгдэл:',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          const SizedBox(height: 8),
+          if (_otherReviews.isEmpty)
+            const Text("Одоогоор сэтгэгдэл алга байна."),
+          ..._otherReviews.map((review) {
+            final isOwn = review['user_id'].toString() == currentUserId;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: isOwn ? Colors.yellow[100] : Colors.grey[100],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("★ ${review['rating']} | ${review['created_at']}"),
+                    const SizedBox(height: 4),
+                    Text(
+                      "${review['username']}${isOwn ? ' (Та)' : ''}",
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blueGrey,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      review['comment'].toString().isNotEmpty
+                          ? review['comment']
+                          : "(Сэтгэгдэл бичээгүй)",
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
         ],
       ),
     );
   }
 
-  Widget _buildStar() {
-    final List<Color> color = [
-      Colors.amber,
-      Colors.amber,
-      Colors.amber,
-      Colors.amber,
-      Colors.grey,
-    ];
+  Widget _buildInteractiveStars() {
     return Row(
-      children: color.map((e) => Icon(Icons.star, size: 25, color: e)).toList(),
+      children: List.generate(5, (index) {
+        return IconButton(
+          icon: Icon(
+            Icons.star,
+            color: index < userRating ? Colors.amber : Colors.grey,
+          ),
+          onPressed: () async {
+            setState(() {
+              userRating = index + 1;
+            });
+            await ReviewService.submitRating(
+              bookId: int.tryParse(widget.book.id) ?? 0,
+              rating: userRating,
+            );
+            await _loadReviews(); // Refresh list after submit
+          },
+        );
+      }),
     );
   }
 }

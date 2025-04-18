@@ -1,6 +1,5 @@
 from django.urls import path
-from appbackend import auth, edituser, book, search, favorite
-
+from appbackend import auth, edituser, book, search, favorite, review
 
 urlpatterns = [
     path('user/', auth.checkService),
@@ -9,4 +8,5 @@ urlpatterns = [
     path("search/", search.searchBookService),
     path("search/options/", search.get_options),
     path('favorite/', favorite.favoriteService),
+    path('review/', review.reviewService),
 ]
