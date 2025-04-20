@@ -15,6 +15,7 @@ class BookReview extends StatefulWidget {
 class _BookReviewState extends State<BookReview> {
   bool isPlaying = false;
   int userRating = 0;
+  String _commentText = '';
   List<Map<String, dynamic>> _otherReviews = [];
   String currentUserId = '';
 
@@ -51,20 +52,48 @@ class _BookReviewState extends State<BookReview> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              // Text(
-              //   '${book.score}',
-              //   style: const TextStyle(
-              //     fontSize: 26,
-              //     fontWeight: FontWeight.bold,
-              //   ),
-              // ),
-              const SizedBox(width: 10),
-              _buildInteractiveStars(),
-            ],
+          Row(children: [_buildInteractiveStars()]),
+          const SizedBox(height: 10),
+          TextField(
+            decoration: const InputDecoration(
+              labelText: 'Сэтгэгдэл бичих...',
+              border: OutlineInputBorder(),
+            ),
+            maxLines: 2,
+            onChanged: (val) {
+              setState(() {
+                _commentText = val;
+              });
+            },
           ),
-          const SizedBox(height: 15),
+          const SizedBox(height: 10),
+          ElevatedButton.icon(
+            onPressed: () async {
+              if (userRating == 0 && _commentText.trim().isEmpty) return;
+
+              if (userRating > 0) {
+                await ReviewService.submitRating(
+                  bookId: int.tryParse(widget.book.id) ?? 0,
+                  rating: userRating,
+                  comment: _commentText,
+                );
+              } else {
+                await ReviewService.submitComment(
+                  bookId: int.tryParse(widget.book.id) ?? 0,
+                  comment: _commentText,
+                );
+              }
+
+              setState(() {
+                _commentText = '';
+              });
+
+              await _loadReviews();
+            },
+            icon: const Icon(Icons.send),
+            label: const Text("Сэтгэгдэл хадгалах"),
+          ),
+          const SizedBox(height: 20),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -151,15 +180,10 @@ class _BookReviewState extends State<BookReview> {
             Icons.star,
             color: index < userRating ? Colors.amber : Colors.grey,
           ),
-          onPressed: () async {
+          onPressed: () {
             setState(() {
               userRating = index + 1;
             });
-            await ReviewService.submitRating(
-              bookId: int.tryParse(widget.book.id) ?? 0,
-              rating: userRating,
-            );
-            await _loadReviews(); // Refresh list after submit
           },
         );
       }),
