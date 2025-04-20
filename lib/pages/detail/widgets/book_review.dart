@@ -55,6 +55,9 @@ class _BookReviewState extends State<BookReview> {
           Row(children: [_buildInteractiveStars()]),
           const SizedBox(height: 10),
           TextField(
+            controller: TextEditingController(
+              text: _commentText,
+            ), // Ensures text field is updated
             decoration: const InputDecoration(
               labelText: 'Сэтгэгдэл бичих...',
               border: OutlineInputBorder(),
@@ -84,10 +87,12 @@ class _BookReviewState extends State<BookReview> {
                 );
               }
 
+              // Clear the comment text field after submission
               setState(() {
                 _commentText = '';
               });
 
+              // Reload the reviews
               await _loadReviews();
             },
             icon: const Icon(Icons.send),
@@ -172,6 +177,7 @@ class _BookReviewState extends State<BookReview> {
     );
   }
 
+  // Stars rating widget with immediate rating submission
   Widget _buildInteractiveStars() {
     return Row(
       children: List.generate(5, (index) {
@@ -180,10 +186,17 @@ class _BookReviewState extends State<BookReview> {
             Icons.star,
             color: index < userRating ? Colors.amber : Colors.grey,
           ),
-          onPressed: () {
+          onPressed: () async {
             setState(() {
               userRating = index + 1;
             });
+
+            // Submit the rating immediately when a star is tapped
+            await ReviewService.submitRating(
+              bookId: int.tryParse(widget.book.id) ?? 0,
+              rating: userRating,
+              comment: _commentText,
+            );
           },
         );
       }),
