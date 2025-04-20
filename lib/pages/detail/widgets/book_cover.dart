@@ -1,3 +1,4 @@
+import 'dart:async'; // Timer ашиглахад хэрэгтэй
 import 'package:flutter/material.dart';
 import 'package:ebook_app/constants/colors.dart';
 import 'package:ebook_app/models/book.dart';
@@ -14,48 +15,56 @@ class BookCover extends StatefulWidget {
 class _BookCoverState extends State<BookCover> {
   late AudioPlayer _player;
   bool isPlaying = false;
-  bool isAudioReady = false;
+  int currentIndex = 0; // Зураг солигдох индекс
+  late List<String> altImageUrls; // alt_img_urls массив
+  late Timer _timer; // Таймер
+  bool isAudioPlaying = false; // Аудио тоглож байна уу?
+  int imageChangeInterval = 10; // Зураг солигдох интервал (секундээр)
 
   @override
   void initState() {
     super.initState();
     _player = AudioPlayer();
-    _initAudio();
-  }
+    _player.setUrl(widget.book.audioUrl); // book.audioUrl байх ёстой!
 
-  Future<void> _initAudio() async {
-    try {
-      await _player.setUrl(widget.book.audioUrl);
-      setState(() {
-        isAudioReady = true;
+    // alt_img_urls массивыг авах
+    altImageUrls =
+        widget.book.altImgUrls.isNotEmpty ? widget.book.altImgUrls : [];
+
+    // Таймер тохируулж зураг солигдох үйлдлийг хийх
+    if (altImageUrls.isNotEmpty) {
+      _timer = Timer.periodic(Duration(seconds: imageChangeInterval), (timer) {
+        if (isAudioPlaying) {
+          setState(() {
+            currentIndex = (currentIndex + 1) % altImageUrls.length;
+          });
+        }
       });
-      print('Audio loaded successfully: ${widget.book.audioUrl}');
-    } catch (e) {
-      print('Audio ачааллаж чадсангүй: $e');
     }
   }
 
   @override
   void dispose() {
-    _player.dispose();
+    _timer.cancel(); // Таймерыг зогсоох
+    _player.dispose(); // Аудио тоглуулагчийг устгах
     super.dispose();
   }
 
   void _toggleAudio() async {
-    if (!isAudioReady) return;
-
-    try {
-      if (isPlaying) {
-        await _player.pause();
-      } else {
-        await _player.play();
-      }
+    if (isPlaying) {
+      await _player.pause();
       setState(() {
-        isPlaying = !isPlaying;
+        isAudioPlaying = false; // Аудио зогссон
       });
-    } catch (e) {
-      print('Play/Pause error: $e');
+    } else {
+      await _player.play();
+      setState(() {
+        isAudioPlaying = true; // Аудио тоглож байна
+      });
     }
+    setState(() {
+      isPlaying = !isPlaying;
+    });
   }
 
   @override
@@ -81,7 +90,15 @@ class _BookCoverState extends State<BookCover> {
                 topLeft: Radius.circular(30),
                 bottomLeft: Radius.circular(30),
               ),
-              child: Image.network(widget.book.imgUrl, fit: BoxFit.cover),
+              child:
+                  altImageUrls.isNotEmpty
+                      ? Image.network(
+                        altImageUrls[currentIndex],
+                        fit: BoxFit.cover,
+                      )
+                      : const Center(
+                        child: Text("Зураг байхгүй"),
+                      ), // Зураг байхгүй тохиолдолд
             ),
           ),
           Positioned(

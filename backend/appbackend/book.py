@@ -12,7 +12,7 @@ def dt_getallbook(request):
         cursor = myConn.cursor()
         query = """
             SELECT 
-                id, type, name, date, img_url, alt_img_url, audio_url,
+                id, type, name, date, img_url, alt_img_urls, audio_url,
                 score, height, duration, title, turul, review
             FROM public.books;
         """

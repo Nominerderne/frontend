@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class SearchService {
-  final String apiUrl = "http://0.0.0.0:8000/search/";
+  final String apiUrl = "http://172.20.10.5:8000/search/";
 
   Future<List<Book>> searchBooks(
     String query, {

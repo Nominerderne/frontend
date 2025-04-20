@@ -11,7 +11,7 @@ class Book {
   final String type;
   final DateTime date;
   final String imgUrl;
-  final String altImgUrl; // Хувилбар зураг
+  final List<String> altImgUrls;
   final String audioUrl;
   final int score;
   final String review;
@@ -29,7 +29,7 @@ class Book {
     required this.type,
     required this.date,
     required this.imgUrl,
-    required this.altImgUrl, // Хувилбар зураг
+    required this.altImgUrls, // Хувилбар зураг
     required this.audioUrl,
     required this.score,
     required this.review,
@@ -49,7 +49,11 @@ class Book {
       type: json['type'] ?? '',
       date: DateTime.tryParse(json['date']) ?? DateTime(1970),
       imgUrl: json['img_url'] ?? '',
-      altImgUrl: json['alt_img_url'] ?? '', // Хувилбар зураг
+      altImgUrls:
+          (json['alt_img_urls'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
       audioUrl: json['audio_url'] ?? '', // Аудио ном
       score: json['score'] ?? 0,
       review: json['review'] ?? '',
@@ -102,7 +106,7 @@ class Book {
         type: '',
         date: DateTime.now(),
         imgUrl: '',
-        altImgUrl: '',
+        altImgUrls: [],
         audioUrl: '',
         score: 0,
         review: '',
