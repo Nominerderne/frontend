@@ -39,7 +39,7 @@ def dt_search_books(request):
         where_clause = " AND ".join(query_conditions) if query_conditions else "TRUE"
 
         query = f"""
-            SELECT id, type, name, date, img_url, score, height, duration, title, turul, review
+            SELECT id, type, name, date, img_url, alt_img_urls, audio_url, score, height, duration, title, turul, review
             FROM public.books
             WHERE {where_clause};
         """
