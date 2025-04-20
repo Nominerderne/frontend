@@ -11,12 +11,14 @@ class Book {
   final String type;
   final DateTime date;
   final String imgUrl;
+  final String altImgUrl; // Хувилбар зураг
+  final String audioUrl;
   final int score;
   final String review;
-  final num height; // We keep height as num, but convert from String safely
+  final num height;
   final int duration; // Duration in minutes
   final String turul;
-  final String summary; // Номын утга
+  final String summary;
   final double progress;
   bool isFavorite;
 
@@ -25,9 +27,10 @@ class Book {
     required this.title,
     required this.name,
     required this.type,
-    // required this.publisher,
     required this.date,
     required this.imgUrl,
+    required this.altImgUrl, // Хувилбар зураг
+    required this.audioUrl,
     required this.score,
     required this.review,
     required this.height,
@@ -45,17 +48,15 @@ class Book {
       name: json['name'] ?? '',
       type: json['type'] ?? '',
       date: DateTime.tryParse(json['date']) ?? DateTime(1970),
-      imgUrl:
-          json['img_url'] ??
-          '', // Note: JSON field 'img_url' instead of 'imgUrl'
+      imgUrl: json['img_url'] ?? '',
+      altImgUrl: json['alt_img_url'] ?? '', // Хувилбар зураг
+      audioUrl: json['audio_url'] ?? '', // Аудио ном
       score: json['score'] ?? 0,
       review: json['review'] ?? '',
       height: num.tryParse(json['height'].toString()) ?? 0,
-      duration:
-          int.tryParse(json['duration'].toString()) ??
-          0, // Safely convert duration
+      duration: int.tryParse(json['duration'].toString()) ?? 0,
       turul: json['turul'] ?? '',
-      summary: json['summary'] ?? '', // Номын утга
+      summary: json['summary'] ?? '',
       progress:
           (json['progress'] != null)
               ? double.tryParse(json['progress'].toString()) ?? 0.0
@@ -99,9 +100,10 @@ class Book {
         title: '',
         name: '',
         type: '',
-        // publisher: '',
         date: DateTime.now(),
         imgUrl: '',
+        altImgUrl: '',
+        audioUrl: '',
         score: 0,
         review: '',
         height: 0,

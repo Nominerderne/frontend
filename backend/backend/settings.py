@@ -14,6 +14,7 @@ from pathlib import Path
 import string, random, smtplib, psycopg2
 from email.mime.text import MIMEText
 from datetime import datetime
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -263,3 +264,10 @@ def sendMail(recipient, subj, bodyHtml):
         server.sendmail(sender_email, recipient_email, html_message.as_string())
         server.quit()
 #sendMail
+
+
+
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

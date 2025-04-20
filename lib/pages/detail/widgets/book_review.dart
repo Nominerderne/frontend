@@ -91,7 +91,7 @@ class _BookReviewState extends State<BookReview> {
               await _loadReviews();
             },
             icon: const Icon(Icons.send),
-            label: const Text("Сэтгэгдэл хадгалах"),
+            label: const Text("Илгээх"),
           ),
           const SizedBox(height: 20),
           Row(

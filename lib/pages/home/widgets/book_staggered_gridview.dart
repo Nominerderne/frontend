@@ -1,4 +1,3 @@
-//book_staggered_gridview.dart
 import 'package:ebook_app/models/book.dart';
 import 'package:ebook_app/pages/favorite/favorite_service.dart';
 import 'package:flutter/material.dart';
@@ -48,8 +47,7 @@ class BookStaggeredGridView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: PageView(
             controller: pageController,
-            onPageChanged:
-                (index) => callback(index, favoriteBooks), // Зассан хэсэг
+            onPageChanged: (index) => callback(index, favoriteBooks),
             physics: const NeverScrollableScrollPhysics(),
             children: [
               MasonryGridView.count(
@@ -67,17 +65,14 @@ class BookStaggeredGridView extends StatelessWidget {
                     book: book,
                     isFavorite: isFavorite,
                     onFavoriteToggled: (isNowFavorite) async {
-                      // Та хүсвэл энд серверээс дахин авж state шинэчилж болно
                       final updatedFavorites =
                           await FavoriteService.getFavorites();
-
-                      // widget-ийг update хийж өгөхийн тулд callback ашиглана
                       callback(selected, updatedFavorites);
                     },
                   );
                 },
               ),
-              Container(),
+              Container(), // өөр төрлүүдийг дараа нэмэх
             ],
           ),
         );
