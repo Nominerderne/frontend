@@ -13,11 +13,11 @@ class BookReview extends StatefulWidget {
 }
 
 class _BookReviewState extends State<BookReview> {
-  bool isPlaying = false;
   int userRating = 0;
   String _commentText = '';
   List<Map<String, dynamic>> _otherReviews = [];
   String currentUserId = '';
+  bool showFullReview = false;
 
   @override
   void initState() {
@@ -46,97 +46,94 @@ class _BookReviewState extends State<BookReview> {
   @override
   Widget build(BuildContext context) {
     final book = widget.book;
+    String shortReview =
+        book.review.length > 200 ? book.review.substring(0, 200) : book.review;
 
-    return Container(
-      padding: const EdgeInsets.all(20),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(children: [_buildInteractiveStars()]),
-          const SizedBox(height: 10),
-          TextField(
-            controller: TextEditingController(
-              text: _commentText,
-            ), // Ensures text field is updated
-            decoration: const InputDecoration(
-              labelText: 'Сэтгэгдэл бичих...',
-              border: OutlineInputBorder(),
+          _buildInteractiveStars(),
+          // Review товч бичвэр
+          Text(
+            showFullReview ? book.review : shortReview,
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 16,
+              height: 1.8,
             ),
-            maxLines: 2,
-            onChanged: (val) {
-              setState(() {
-                _commentText = val;
-              });
-            },
           ),
-          const SizedBox(height: 10),
-          ElevatedButton.icon(
-            onPressed: () async {
-              if (userRating == 0 && _commentText.trim().isEmpty) return;
-
-              if (userRating > 0) {
-                await ReviewService.submitRating(
-                  bookId: int.tryParse(widget.book.id) ?? 0,
-                  rating: userRating,
-                  comment: _commentText,
-                );
-              } else {
-                await ReviewService.submitComment(
-                  bookId: int.tryParse(widget.book.id) ?? 0,
-                  comment: _commentText,
-                );
-              }
-
-              // Clear the comment text field after submission
-              setState(() {
-                _commentText = '';
-              });
-
-              // Reload the reviews
-              await _loadReviews();
-            },
-            icon: const Icon(Icons.send),
-            label: const Text("Илгээх"),
-          ),
-          const SizedBox(height: 20),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Transform.translate(
-                offset: const Offset(0, 3),
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      isPlaying = !isPlaying;
-                    });
-                    print(isPlaying ? 'Playing audio' : 'Stopped audio');
-                  },
-                  child: Icon(
-                    Icons.volume_up,
-                    color: isPlaying ? kFont : Colors.grey,
-                    size: 24,
-                  ),
-                ),
+          if (book.review.length > 200)
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  showFullReview = !showFullReview;
+                });
+              },
+              child: Text(
+                showFullReview ? "Хураах" : "… Дэлгэрэнгүй",
+                style: const TextStyle(color: Colors.black),
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  book.review,
-                  style: const TextStyle(
-                    color: kFont,
-                    fontSize: 16,
-                    height: 1.8,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
+            ),
+          const SizedBox(height: 8),
+
           const Text(
-            'Бусдын сэтгэгдэл:',
+            'Сэтгэгдэл:',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
           const SizedBox(height: 8),
+
+          // Сэтгэгдэл бичих хэсэг
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  decoration: const InputDecoration(
+                    hintText: 'Сэтгэгдэл бичих...',
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                  ),
+                  style: const TextStyle(fontSize: 14),
+                  maxLines: 2,
+                  onChanged: (val) {
+                    setState(() {
+                      _commentText = val;
+                    });
+                  },
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.send, color: Colors.black),
+                onPressed: () async {
+                  if (_commentText.trim().isEmpty) return;
+
+                  if (userRating > 0) {
+                    await ReviewService.submitRating(
+                      bookId: int.tryParse(widget.book.id) ?? 0,
+                      rating: userRating,
+                      comment: _commentText,
+                    );
+                  } else {
+                    await ReviewService.submitComment(
+                      bookId: int.tryParse(widget.book.id) ?? 0,
+                      comment: _commentText,
+                    );
+                  }
+
+                  setState(() {
+                    _commentText = '';
+                  });
+
+                  await _loadReviews();
+                },
+              ),
+            ],
+          ),
+
           if (_otherReviews.isEmpty)
             const Text("Одоогоор сэтгэгдэл алга байна."),
           ..._otherReviews.map((review) {
@@ -171,19 +168,19 @@ class _BookReviewState extends State<BookReview> {
                 ),
               ),
             );
-          }).toList(),
+          }),
         ],
       ),
     );
   }
 
-  // Stars rating widget with immediate rating submission
   Widget _buildInteractiveStars() {
     return Row(
       children: List.generate(5, (index) {
         return IconButton(
           icon: Icon(
             Icons.star,
+            size: 24,
             color: index < userRating ? Colors.amber : Colors.grey,
           ),
           onPressed: () async {
@@ -191,12 +188,13 @@ class _BookReviewState extends State<BookReview> {
               userRating = index + 1;
             });
 
-            // Submit the rating immediately when a star is tapped
             await ReviewService.submitRating(
               bookId: int.tryParse(widget.book.id) ?? 0,
               rating: userRating,
               comment: _commentText,
             );
+
+            await _loadReviews();
           },
         );
       }),
