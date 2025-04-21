@@ -34,7 +34,7 @@ class _BookAudioPlayerState extends State<BookAudioPlayer> {
     return Column(
       children: [
         const SizedBox(height: 10),
-        const Text("🎧 Үлгэр сонсох", style: TextStyle(fontSize: 16)),
+        const Text("Үлгэр сонсох", style: TextStyle(fontSize: 16)),
         const SizedBox(height: 5),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,

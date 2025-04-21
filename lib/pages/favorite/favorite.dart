@@ -1,203 +1,38 @@
-// import 'package:flutter/material.dart';
-// import 'package:intl/intl.dart';
-
-// class FavoritePage extends StatelessWidget {
-//   const FavoritePage({Key? key}) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return DefaultTabController(
-//       length: 2,
-//       child: Scaffold(
-//         body: Column(
-//           children: [
-//             const TabBar(
-//               labelColor: Colors.blueAccent,
-//               unselectedLabelColor: Colors.grey,
-//               indicatorColor: Colors.blueAccent,
-//               indicatorWeight: 2,
-//               tabs: [Tab(text: "Үзсэн түүх"), Tab(text: "Хадгалсан")],
-//             ),
-//             Expanded(
-//               child: const TabBarView(
-//                 children: [WatchedHistoryTab(), SavedBooksTab()],
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// // Үзсэн түүх харагдах хэсэг
-// class WatchedHistoryTab extends StatelessWidget {
-//   const WatchedHistoryTab({Key? key}) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     // Example list of watched timestamps (You can modify this to be dynamic)
-//     final List<DateTime> watchedDates = [DateTime(2025, 3, 24, 10, 30)];
-
-//     // Create a date formatter for "yyyy MM dd" format
-//     final DateFormat dateFormat = DateFormat('yyyy MM dd');
-
-//     return Padding(
-//       padding: const EdgeInsets.all(16.0),
-//       child: ListView.builder(
-//         itemCount: 1,
-//         itemBuilder: (context, index) {
-//           String formattedDate = dateFormat.format(
-//             watchedDates[index],
-//           ); // Format the date
-
-//           return Container(
-//             margin: const EdgeInsets.only(bottom: 16),
-//             padding: const EdgeInsets.all(12),
-//             decoration: BoxDecoration(
-//               color: Colors.white,
-//               borderRadius: BorderRadius.circular(20),
-//               boxShadow: [BoxShadow(blurRadius: 10, spreadRadius: 2)],
-//             ),
-//             child: Row(
-//               crossAxisAlignment: CrossAxisAlignment.center,
-//               children: [
-//                 ClipRRect(
-//                   borderRadius: BorderRadius.circular(12),
-//                   child: Image.asset(
-//                     'assets/images/book${index + 1}.jpeg', // Ensure this path is correct
-//                     width: 100,
-//                     height: 80,
-//                     fit: BoxFit.cover,
-//                   ),
-//                 ),
-//                 const SizedBox(width: 12),
-//                 Expanded(
-//                   child: Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       Text(
-//                         "Үлгэрийн нэр $index",
-//                         style: const TextStyle(
-//                           color: Colors.black,
-//                           fontSize: 18,
-//                           fontWeight: FontWeight.bold,
-//                         ),
-//                         maxLines: 2,
-//                         overflow: TextOverflow.ellipsis,
-//                       ),
-//                       const SizedBox(height: 8),
-//                       // Add the formatted date to show when it was watched
-//                       Text(
-//                         "Үзсэн огноо: $formattedDate", // Shows the formatted date
-//                         style: const TextStyle(
-//                           color: Colors.grey,
-//                           fontSize: 14,
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           );
-//         },
-//       ),
-//     );
-//   }
-// }
-
-// // Хадгалсан ном харагдах хэсэг
-// class SavedBooksTab extends StatelessWidget {
-//   const SavedBooksTab({Key? key}) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Padding(
-//       padding: const EdgeInsets.all(16.0),
-//       child: Column(
-//         children: [
-//           Container(
-//             margin: const EdgeInsets.only(bottom: 16),
-//             padding: const EdgeInsets.all(12),
-//             decoration: BoxDecoration(
-//               color: Colors.white,
-//               borderRadius: BorderRadius.circular(20),
-//               boxShadow: [BoxShadow(blurRadius: 10, spreadRadius: 2)],
-//             ),
-//             child: Row(
-//               crossAxisAlignment: CrossAxisAlignment.center,
-//               children: [
-//                 ClipRRect(
-//                   borderRadius: BorderRadius.circular(12),
-//                   child: Image.asset(
-//                     'assets/images/book1.jpeg', // Ensure this path is correct
-//                     width: 130,
-//                     height: 100,
-//                     fit: BoxFit.cover,
-//                   ),
-//                 ),
-//                 const SizedBox(width: 12),
-//                 Expanded(
-//                   child: Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       const Text(
-//                         "Сэргэлэн туулай",
-//                         style: TextStyle(
-//                           color: Colors.black,
-//                           fontSize: 18,
-//                           fontWeight: FontWeight.bold,
-//                         ),
-//                         maxLines: 2,
-//                         overflow: TextOverflow.ellipsis,
-//                       ),
-//                       const SizedBox(height: 8),
-//                       Row(
-//                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                         children: [
-//                           const Icon(
-//                             Icons.favorite,
-//                             color: Colors.pink,
-//                             size: 28,
-//                           ),
-//                           GestureDetector(
-//                             onTap: () {},
-//                             child: Container(
-//                               padding: const EdgeInsets.all(6),
-//                               decoration: const BoxDecoration(
-//                                 color: Colors.black12,
-//                                 shape: BoxShape.circle,
-//                               ),
-//                               child: const Icon(
-//                                 Icons.close,
-//                                 color: Colors.black54,
-//                                 size: 24,
-//                               ),
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-import 'package:ebook_app/models/book.dart';
-import 'package:ebook_app/pages/favorite/favorite_service.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:intl/intl.dart';
 
+// === HistoryService ===
+class HistoryService {
+  static Future<void> saveReadingHistory(int userId, int bookId) async {
+    final url = Uri.parse("http://172.20.10.5:8000/readinghistory/");
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "action": "addreadinghistory",
+        "user_id": userId,
+        "book_id": bookId,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      print("Хадгалах үед алдаа гарлаа.");
+    }
+  }
+}
+
+// === Favorite Page ===
 class FavoritePage extends StatelessWidget {
   final List<Map<String, dynamic>> favoriteBooks;
-  const FavoritePage({Key? key, required this.favoriteBooks}) : super(key: key);
+  final int userId;
+
+  const FavoritePage({
+    Key? key,
+    required this.favoriteBooks,
+    required this.userId,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -213,9 +48,12 @@ class FavoritePage extends StatelessWidget {
               indicatorWeight: 2,
               tabs: [Tab(text: "Үзсэн түүх"), Tab(text: "Хадгалсан")],
             ),
-            const Expanded(
+            Expanded(
               child: TabBarView(
-                children: [WatchedHistoryTab(), SavedBooksTab()],
+                children: [
+                  WatchedHistoryTab(userId: userId),
+                  SavedBooksTab(favoriteBooks: favoriteBooks),
+                ],
               ),
             ),
           ],
@@ -225,21 +63,80 @@ class FavoritePage extends StatelessWidget {
   }
 }
 
-// Үзсэн түүх харагдах хэсэг
-class WatchedHistoryTab extends StatelessWidget {
-  const WatchedHistoryTab({Key? key}) : super(key: key);
+// === Үзсэн түүх Tab ===
+class WatchedHistoryTab extends StatefulWidget {
+  final int userId;
+  const WatchedHistoryTab({Key? key, required this.userId}) : super(key: key);
+
+  @override
+  State<WatchedHistoryTab> createState() => _WatchedHistoryTabState();
+}
+
+class _WatchedHistoryTabState extends State<WatchedHistoryTab> {
+  List<Map<String, dynamic>> watchedBooks = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchWatchedBooks();
+  }
+
+  Future<void> fetchWatchedBooks() async {
+    const String apiUrl = "http://172.20.10.5:8000/readinghistory/";
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {"Content-Type": "application/json"},
+        body: json.encode({
+          "action": "getreadinghistory",
+          "user_id": widget.userId,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        setState(() {
+          watchedBooks = List<Map<String, dynamic>>.from(responseData["data"]);
+          isLoading = false;
+        });
+      } else {
+        setState(() => isLoading = false);
+      }
+    } catch (e) {
+      print("Error fetching watched books: $e");
+      setState(() => isLoading = false);
+    }
+  }
+
+  void playBook(int bookId) {
+    // TODO: Аудио тоглуулагч ашиглан тоглуулах
+    print("Playing book with ID: $bookId");
+  }
 
   @override
   Widget build(BuildContext context) {
-    final List<DateTime> watchedDates = [DateTime(2025, 3, 24, 10, 30)];
-    final DateFormat dateFormat = DateFormat('yyyy MM dd');
+    final DateFormat dateFormat = DateFormat('yyyy-MM-dd HH:mm');
+
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (watchedBooks.isEmpty) {
+      return const Center(child: Text("Үзсэн түүх алга байна."));
+    }
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: ListView.builder(
-        itemCount: watchedDates.length,
+        itemCount: watchedBooks.length,
         itemBuilder: (context, index) {
-          String formattedDate = dateFormat.format(watchedDates[index]);
+          final book = watchedBooks[index];
+          final String dateWatched = dateFormat.format(
+            DateTime.parse(book["watched_at"]),
+          );
+
           return Container(
             margin: const EdgeInsets.only(bottom: 16),
             padding: const EdgeInsets.all(12),
@@ -253,11 +150,14 @@ class WatchedHistoryTab extends StatelessWidget {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: Image.asset(
-                    'assets/images/book${index + 1}.jpeg',
+                  child: Image.network(
+                    book["img_url"] ?? '',
                     width: 100,
                     height: 80,
                     fit: BoxFit.cover,
+                    errorBuilder:
+                        (context, error, stackTrace) =>
+                            const Icon(Icons.broken_image),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -266,7 +166,7 @@ class WatchedHistoryTab extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Үлгэрийн нэр $index",
+                        book["title"] ?? "Үл мэдэгдэх ном",
                         style: const TextStyle(
                           color: Colors.black,
                           fontSize: 18,
@@ -277,11 +177,30 @@ class WatchedHistoryTab extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        "Үзсэн огноо: $formattedDate",
+                        "Үзсэн огноо: $dateWatched",
                         style: const TextStyle(
                           color: Colors.grey,
                           fontSize: 14,
                         ),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(
+                              Icons.play_arrow,
+                              color: Colors.blue,
+                            ),
+                            onPressed: () {
+                              playBook(book["book_id"]);
+                              HistoryService.saveReadingHistory(
+                                widget.userId,
+                                book["book_id"],
+                              );
+                            },
+                          ),
+                          const Text("Сонсох"),
+                        ],
                       ),
                     ],
                   ),
@@ -295,102 +214,75 @@ class WatchedHistoryTab extends StatelessWidget {
   }
 }
 
-// Хадгалсан ном харагдах хэсэг
-class SavedBooksTab extends StatefulWidget {
-  const SavedBooksTab({Key? key}) : super(key: key);
-
-  @override
-  State<SavedBooksTab> createState() => _SavedBooksTabState();
-}
-
-class _SavedBooksTabState extends State<SavedBooksTab> {
-  List<Map<String, dynamic>> _savedBooks = [];
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadSavedBooks();
-  }
-
-  Future<void> _loadSavedBooks() async {
-    final books = await FavoriteService.getFavorites();
-    setState(() {
-      _savedBooks = books;
-      _isLoading = false;
-    });
-  }
+// === Хадгалсан ном Tab ===
+class SavedBooksTab extends StatelessWidget {
+  final List<Map<String, dynamic>> favoriteBooks;
+  const SavedBooksTab({Key? key, required this.favoriteBooks})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_savedBooks.isEmpty) {
+    if (favoriteBooks.isEmpty) {
       return const Center(child: Text("Хадгалсан ном алга байна."));
     }
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: ListView.builder(
-        itemCount: _savedBooks.length,
+        itemCount: favoriteBooks.length,
         itemBuilder: (context, index) {
-          final book = _savedBooks[index];
+          final book = favoriteBooks[index];
 
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 16),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [BoxShadow(blurRadius: 10, spreadRadius: 2)],
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.network(
-                      book['imgUrl'] ?? '',
-                      width: 100,
-                      height: 80,
-                      fit: BoxFit.cover,
-                      errorBuilder:
-                          (context, error, stackTrace) =>
-                              const Icon(Icons.broken_image),
-                    ),
+          return Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [BoxShadow(blurRadius: 10, spreadRadius: 2)],
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.network(
+                    book['imgUrl'] ?? '',
+                    width: 100,
+                    height: 80,
+                    fit: BoxFit.cover,
+                    errorBuilder:
+                        (context, error, stackTrace) =>
+                            const Icon(Icons.broken_image),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          book['title'] ?? '',
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        book['title'] ?? '',
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          "Зохиогч: ${book['name'] ?? 'Тодорхойгүй'}",
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey,
-                          ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        "Зохиогч: ${book['name'] ?? 'Тодорхойгүй'}",
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           );
         },

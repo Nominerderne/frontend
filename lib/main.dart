@@ -4,7 +4,7 @@ import 'package:ebook_app/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import './config.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Cookie хадгалах
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(App());
@@ -18,23 +18,21 @@ class App extends StatelessWidget {
 }
 
 class LoginScreen extends StatelessWidget {
-  // Хэрэглэгчийн session-ийг шалгах функц
   Future<void> checkLoginStatus(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? sessionCookie = prefs.getString('session_cookie');
+    int? userId = prefs.getInt('userid');
 
-    if (sessionCookie != null) {
-      // Хэрэв sessionCookie байгаа бол хэрэглэгч нэвтэрсэн байна
+    if (sessionCookie != null && userId != null) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomePage()),
+        MaterialPageRoute(builder: (context) => HomePage(userId: userId)),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Нэвтэрсэн эсэхийг шалгах
     checkLoginStatus(context);
 
     return Scaffold(
@@ -49,9 +47,7 @@ class LoginScreen extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 30),
             child: Column(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment:
-                  MainAxisAlignment.center, // төвлөрүүлж байрлуулах
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   'Монгол ардын үлгэр, домог',
@@ -62,8 +58,6 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 90),
-
-                // Нэвтрэх товч
                 OutlinedButton(
                   onPressed: () {
                     Navigator.push(
@@ -77,9 +71,7 @@ class LoginScreen extends StatelessWidget {
                     padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                   ),
                 ),
-
-                SizedBox(height: 20), // Товчлууруудын хооронд зай нэмэх
-                // Бүртгүүлэх товч
+                SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
@@ -96,8 +88,6 @@ class LoginScreen extends StatelessWidget {
                     padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                   ),
                 ),
-
-                SizedBox(height: 30), // Доорх зай
               ],
             ),
           ),
@@ -145,17 +135,17 @@ class _LoginPageState extends State<LoginPage> {
             await saveSessionCookie(sessionCookie);
           }
 
-          // Хэрэглэгчийн мэдээллийг хадгалах
           final user = responseData["data"][0];
           SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setInt('userid', user["userid"]);
           await prefs.setString('username', user["username"]);
           await prefs.setString('email', user["email"]);
 
-          // Амжилттай нэвтэрсэн тул Home рүү шилжих
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => HomePage()),
+            MaterialPageRoute(
+              builder: (context) => HomePage(userId: user["userid"]),
+            ),
           );
         } else {
           showSnackbar(
@@ -163,9 +153,7 @@ class _LoginPageState extends State<LoginPage> {
           );
         }
       } else {
-        showSnackbar(
-          "2Серверээс алдаатай хариу ирлээ (${response.statusCode})",
-        );
+        showSnackbar("Серверээс алдаатай хариу ирлээ (${response.statusCode})");
       }
     } catch (e) {
       showSnackbar("Сервертэй холбогдож чадсангүй! Алдаа: $e");

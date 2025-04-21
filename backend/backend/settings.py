@@ -53,8 +53,14 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',  # add this line if it's not already present
+    'django.middleware.common.CommonMiddleware', 
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
+
+WHITENOISE_ADD_HEADERS_FUNCTION = 'backend.custom_headers.set_custom_headers'
+
+SENDFILE_BACKEND = 'sendfile.backends.development'
+
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
@@ -264,8 +270,6 @@ def sendMail(recipient, subj, bodyHtml):
         server.sendmail(sender_email, recipient_email, html_message.as_string())
         server.quit()
 #sendMail
-
-
 
 
 

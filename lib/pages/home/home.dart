@@ -12,7 +12,8 @@ import 'package:ebook_app/models/book.dart';
 import 'package:ebook_app/pages/page3/bichleg.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final int userId;
+  const HomePage({Key? key, required this.userId}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -44,7 +45,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ pages жагсаалтыг build() функц дотор үүсгэж байна
     final List<Widget> pages = [
       Column(
         children: [
@@ -63,7 +63,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      FavoritePage(favoriteBooks: favoriteBooks),
+      FavoritePage(favoriteBooks: favoriteBooks, userId: widget.userId),
       BichlegPage(),
       ProfilePage(),
     ];
