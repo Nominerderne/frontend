@@ -1,7 +1,7 @@
+// home.dart
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:ebook_app/pages/favorite/favorite.dart';
 import 'package:ebook_app/pages/favorite/favorite_service.dart';
-import 'package:ebook_app/pages/home/widgets/book_item.dart';
 import 'package:ebook_app/pages/profile.dart';
 import 'package:ebook_app/pages/search.dart';
 import 'package:flutter/material.dart';
@@ -56,14 +56,22 @@ class _HomePageState extends State<HomePage> {
             ) {
               setState(() {
                 tabIndex = index;
-                favoriteBooks =
-                    updatedFavorites; // favorite шинэчлэгдэж энд ирж байна
+                favoriteBooks = updatedFavorites;
               });
             }, favoriteBooks),
           ),
         ],
       ),
-      FavoritePage(favoriteBooks: favoriteBooks, userId: widget.userId),
+      FavoritePage(
+        favoriteBooks: favoriteBooks,
+        userId: widget.userId,
+        onFavoriteChanged: () async {
+          final updatedFavorites = await FavoriteService.getFavorites();
+          setState(() {
+            favoriteBooks = updatedFavorites;
+          });
+        },
+      ),
       BichlegPage(),
       ProfilePage(),
     ];
@@ -71,10 +79,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: _buildAppBar(),
-      body:
-          pages.isNotEmpty
-              ? pages[bottomIndex]
-              : const Center(child: CircularProgressIndicator()),
+      body: pages[bottomIndex],
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
@@ -143,7 +148,6 @@ class _HomePageState extends State<HomePage> {
       elevation: 0,
       automaticallyImplyLeading: false,
       title: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           IconButton(
             onPressed: () {},

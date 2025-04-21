@@ -1,9 +1,14 @@
+// === home.dart ===
+// (Таны өмнөх HomePage код энд байна...)
+// ...
+
+// === favorite.dart ===
+import 'package:ebook_app/pages/favorite/favorite_service.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
 
-// === HistoryService ===
 class HistoryService {
   static Future<void> saveReadingHistory(int userId, int bookId) async {
     final url = Uri.parse("http://172.20.10.5:8000/readinghistory/");
@@ -16,22 +21,22 @@ class HistoryService {
         "book_id": bookId,
       }),
     );
-
     if (response.statusCode != 200) {
       print("Хадгалах үед алдаа гарлаа.");
     }
   }
 }
 
-// === Favorite Page ===
 class FavoritePage extends StatelessWidget {
   final List<Map<String, dynamic>> favoriteBooks;
   final int userId;
+  final VoidCallback? onFavoriteChanged;
 
   const FavoritePage({
     Key? key,
     required this.favoriteBooks,
     required this.userId,
+    this.onFavoriteChanged,
   }) : super(key: key);
 
   @override
@@ -52,7 +57,10 @@ class FavoritePage extends StatelessWidget {
               child: TabBarView(
                 children: [
                   WatchedHistoryTab(userId: userId),
-                  SavedBooksTab(favoriteBooks: favoriteBooks),
+                  SavedBooksTab(
+                    favoriteBooks: favoriteBooks,
+                    onFavoriteChanged: onFavoriteChanged,
+                  ),
                 ],
               ),
             ),
@@ -63,7 +71,6 @@ class FavoritePage extends StatelessWidget {
   }
 }
 
-// === Үзсэн түүх Tab ===
 class WatchedHistoryTab extends StatefulWidget {
   final int userId;
   const WatchedHistoryTab({Key? key, required this.userId}) : super(key: key);
@@ -111,7 +118,6 @@ class _WatchedHistoryTabState extends State<WatchedHistoryTab> {
   }
 
   void playBook(int bookId) {
-    // TODO: Аудио тоглуулагч ашиглан тоглуулах
     print("Playing book with ID: $bookId");
   }
 
@@ -214,24 +220,64 @@ class _WatchedHistoryTabState extends State<WatchedHistoryTab> {
   }
 }
 
-// === Хадгалсан ном Tab ===
-class SavedBooksTab extends StatelessWidget {
+class SavedBooksTab extends StatefulWidget {
   final List<Map<String, dynamic>> favoriteBooks;
-  const SavedBooksTab({Key? key, required this.favoriteBooks})
-    : super(key: key);
+  final VoidCallback? onFavoriteChanged;
+
+  const SavedBooksTab({
+    Key? key,
+    required this.favoriteBooks,
+    this.onFavoriteChanged,
+  }) : super(key: key);
+
+  @override
+  State<SavedBooksTab> createState() => _SavedBooksTabState();
+}
+
+class _SavedBooksTabState extends State<SavedBooksTab> {
+  late List<Map<String, dynamic>> favorites;
+
+  @override
+  void initState() {
+    super.initState();
+    favorites = widget.favoriteBooks;
+  }
+
+  @override
+  void didUpdateWidget(covariant SavedBooksTab oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.favoriteBooks != widget.favoriteBooks) {
+      setState(() {
+        favorites = widget.favoriteBooks;
+      });
+    }
+  }
+
+  Future<void> _removeFavorite(String bookId) async {
+    await FavoriteService.removeFavorite(bookId);
+    final updated =
+        favorites.where((book) => book['id'].toString() != bookId).toList();
+    setState(() {
+      favorites = updated;
+    });
+
+    if (widget.onFavoriteChanged != null) {
+      widget.onFavoriteChanged!();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (favoriteBooks.isEmpty) {
+    if (favorites.isEmpty) {
       return const Center(child: Text("Хадгалсан ном алга байна."));
     }
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: ListView.builder(
-        itemCount: favoriteBooks.length,
+        itemCount: favorites.length,
         itemBuilder: (context, index) {
-          final book = favoriteBooks[index];
+          final book = favorites[index];
 
           return Container(
             margin: const EdgeInsets.only(bottom: 16),
@@ -242,7 +288,6 @@ class SavedBooksTab extends StatelessWidget {
               boxShadow: [BoxShadow(blurRadius: 10, spreadRadius: 2)],
             ),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
@@ -264,12 +309,9 @@ class SavedBooksTab extends StatelessWidget {
                       Text(
                         book['title'] ?? '',
                         style: const TextStyle(
-                          color: Colors.black,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -281,6 +323,10 @@ class SavedBooksTab extends StatelessWidget {
                       ),
                     ],
                   ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.favorite, color: Colors.red),
+                  onPressed: () => _removeFavorite(book['id'].toString()),
                 ),
               ],
             ),
