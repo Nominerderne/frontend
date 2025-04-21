@@ -11,7 +11,6 @@ def media_file(request, path):
         return sendfile(request, file_path)
     except FileNotFoundError:
         return HttpResponseNotFound("File not found")
-
 urlpatterns = [
     path('user/', auth.checkService),
     path('useredit/', edituser.editcheckService),
@@ -22,7 +21,14 @@ urlpatterns = [
     path('review/', review.reviewService),
     path('comment/', comment.commentService),
     path('readinghistory/', readinghistory.editcheckService),
+
+    # ✅ Range Request дэмждэг stream
     path('stream/audio/<str:filename>', stream_audio),
+
+    # ✅ /media/audio/ файлд Range дэмжих stream
+    path('media/audio/<str:filename>', stream_audio),
+
+    # 🗂 Бусад медиа файлд fallback
     path('media/<path:path>/', media_file),
 ]
 

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:ebook_app/constants/colors.dart';
 import 'package:ebook_app/models/book.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ebook_app/pages/favorite/history_service.dart';
 
 class BookCover extends StatefulWidget {
   final Book book;
@@ -35,7 +37,7 @@ class _BookCoverState extends State<BookCover> {
 
     if (altImageUrls.isNotEmpty) {
       _timer = Timer.periodic(Duration(seconds: imageChangeInterval), (timer) {
-        if (isAudioPlaying) {
+        if (mounted && isAudioPlaying) {
           setState(() {
             currentIndex = (currentIndex + 1) % altImageUrls.length;
           });
@@ -44,16 +46,37 @@ class _BookCoverState extends State<BookCover> {
     }
 
     _player.positionStream.listen((position) {
-      setState(() {
-        _currentPosition = position;
-      });
+      if (mounted) {
+        setState(() {
+          _currentPosition = position;
+        });
+      }
     });
 
     _player.durationStream.listen((duration) {
-      if (duration != null && duration > Duration.zero) {
+      if (mounted && duration != null && duration > Duration.zero) {
         setState(() {
           _totalDuration = duration;
         });
+      }
+    });
+
+    _player.playerStateStream.listen((playerState) async {
+      if (playerState.processingState == ProcessingState.completed) {
+        if (mounted) {
+          setState(() {
+            isPlaying = false;
+            isAudioPlaying = false;
+          });
+        }
+
+        final prefs = await SharedPreferences.getInstance();
+        final userId = prefs.getInt('userid');
+        final bookId = int.tryParse(widget.book.id);
+        if (userId != null && bookId != null) {
+          await HistoryService.saveReadingHistory(userId, bookId);
+          print("Түүхэнд амжилттай хадгаллаа");
+        }
       }
     });
   }
@@ -61,14 +84,16 @@ class _BookCoverState extends State<BookCover> {
   Future<void> _initAudio() async {
     try {
       await _player.setUrl(widget.book.audioUrl);
+      await Future.delayed(const Duration(milliseconds: 500));
+
       final duration = _player.duration;
-      if (duration != null && duration > Duration.zero) {
+      if (mounted && duration != null && duration > Duration.zero) {
         setState(() {
           _totalDuration = duration;
         });
       }
     } catch (e) {
-      print("Error loading audio: $e");
+      print("Аудио ачааллахад алдаа: $e");
     }
   }
 
@@ -82,18 +107,24 @@ class _BookCoverState extends State<BookCover> {
   void _toggleAudio() async {
     if (isPlaying) {
       await _player.pause();
-      setState(() {
-        isAudioPlaying = false;
-      });
+      if (mounted) {
+        setState(() {
+          isAudioPlaying = false;
+        });
+      }
     } else {
       await _player.play();
+      if (mounted) {
+        setState(() {
+          isAudioPlaying = true;
+        });
+      }
+    }
+    if (mounted) {
       setState(() {
-        isAudioPlaying = true;
+        isPlaying = !isPlaying;
       });
     }
-    setState(() {
-      isPlaying = !isPlaying;
-    });
   }
 
   String _formatDuration(Duration duration) {
@@ -209,17 +240,18 @@ class _BookCoverState extends State<BookCover> {
                                     : 1,
                               )
                               .toDouble(),
-                      onChanged: (value) async {
-                        if (_totalDuration.inSeconds > 0) {
-                          try {
-                            await _player.seek(
-                              Duration(seconds: value.toInt()),
-                            );
-                          } catch (e) {
-                            print("Seek хийхэд алдаа: $e");
-                          }
-                        }
-                      },
+                      onChanged:
+                          _totalDuration.inSeconds > 0
+                              ? (value) async {
+                                try {
+                                  await _player.seek(
+                                    Duration(seconds: value.toInt()),
+                                  );
+                                } catch (e) {
+                                  print("Seek хийхэд алдаа: $e");
+                                }
+                              }
+                              : null,
                     ),
                   ),
                 ),
