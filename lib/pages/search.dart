@@ -99,41 +99,56 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color.fromARGB(255, 208, 232, 255),
       appBar: AppBar(
-        title: const Text('Хайлт'),
-        backgroundColor: Color.fromARGB(255, 122, 189, 248),
+        title: const Text('📚 Хайлт'),
+        backgroundColor: Color.fromARGB(255, 75, 162, 238),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Хайлтын талбар
+            // Text(
+            //   'Ном хайх',
+            //   style: TextStyle(
+            //     fontSize: 24,
+            //     fontWeight: FontWeight.bold,
+            //     color: Colors.blueAccent,
+            //   ),
+            // ),
+            // const SizedBox(height: 12),
             TextField(
               controller: _controller,
               decoration: InputDecoration(
-                labelText: 'Хайлтаа оруулна уу',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.white,
+                labelText: 'Номын нэр...',
+                labelStyle: TextStyle(fontSize: 16),
+                prefixIcon: Icon(Icons.search, color: Colors.blueAccent),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  borderSide: BorderSide.none,
+                ),
               ),
               onChanged: (text) {
                 _search(text);
               },
             ),
             const SizedBox(height: 16),
-
-            // Жанр ба төрөл сонголтууд
             Row(
               children: [
-                // Жанр
                 Expanded(
                   child: DropdownButtonFormField<String>(
                     value: _selectedGenre.isEmpty ? null : _selectedGenre,
                     decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide.none,
                       ),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 16),
                     ),
                     hint: Text('Жанр'),
                     items:
@@ -152,17 +167,17 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                 ),
                 const SizedBox(width: 8),
-
-                // Төрөл
                 Expanded(
                   child: DropdownButtonFormField<String>(
                     value: _selectedType.isEmpty ? null : _selectedType,
                     decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide.none,
                       ),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 16),
                     ),
                     hint: Text('Төрөл'),
                     items:
@@ -175,8 +190,8 @@ class _SearchScreenState extends State<SearchScreen> {
                     onChanged: (value) async {
                       setState(() {
                         _selectedType = value ?? "";
-                        _selectedGenre = ""; // Clear genre
-                        _genreOptions = []; // Clear genre options
+                        _selectedGenre = "";
+                        _genreOptions = [];
                       });
 
                       try {
@@ -197,78 +212,86 @@ class _SearchScreenState extends State<SearchScreen> {
               ],
             ),
             const SizedBox(height: 16),
-
-            // Үр дүн
             Expanded(
-              child: ListView.builder(
-                itemCount: _searchResults.length,
-                itemBuilder: (context, index) {
-                  final book = _searchResults[index];
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DetailPage(book),
+              child:
+                  _searchResults.isEmpty
+                      ? Center(
+                        child: Text(
+                          'Хайлтын үр дүн алга 😕',
+                          style: TextStyle(fontSize: 18, color: Colors.grey),
                         ),
-                      );
-                    },
-                    child: Card(
-                      margin: EdgeInsets.symmetric(vertical: 8),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 3,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(12),
-                              bottomLeft: Radius.circular(12),
-                            ),
-                            child: Image.asset(
-                              book.imgUrl,
-                              width: 100,
-                              height: 130,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          SizedBox(width: 12),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 12.0,
-                                horizontal: 8,
+                      )
+                      : ListView.builder(
+                        itemCount: _searchResults.length,
+                        itemBuilder: (context, index) {
+                          final book = _searchResults[index];
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailPage(book),
+                                ),
+                              );
+                            },
+                            child: Card(
+                              margin: EdgeInsets.symmetric(vertical: 8),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
                               ),
-                              child: Column(
+                              elevation: 4,
+                              child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    book.title,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.horizontal(
+                                      left: Radius.circular(20),
                                     ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
+                                    child: Image.asset(
+                                      book.imgUrl,
+                                      width: 100,
+                                      height: 130,
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
-                                  SizedBox(height: 6),
-                                  Text(
-                                    "Төрөл: ${book.type}",
-                                    style: TextStyle(color: Colors.grey[700]),
+                                  SizedBox(width: 12),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 12.0,
+                                        horizontal: 8,
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            book.title,
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black87,
+                                            ),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          SizedBox(height: 6),
+                                          Text(
+                                            "Төрөл: ${book.type}",
+                                            style: TextStyle(
+                                              color: Colors.grey[600],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
-                                  SizedBox(height: 4),
                                 ],
                               ),
                             ),
-                          ),
-                        ],
+                          );
+                        },
                       ),
-                    ),
-                  );
-                },
-              ),
             ),
           ],
         ),

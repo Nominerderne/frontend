@@ -12,14 +12,14 @@ class BichlegPage extends StatelessWidget {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF6F0FA),
+        backgroundColor: Colors.white,
         body: Column(
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF6F0FA),
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: TabBar(

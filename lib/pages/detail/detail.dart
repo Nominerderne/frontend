@@ -45,7 +45,9 @@ class DetailPage extends StatelessWidget {
                           ),
                         ),
                         TextSpan(
-                          text: '${book.name}',
+                          text:
+                              "Зохиолч:"
+                              '${book.name}',
                           style: const TextStyle(
                             fontSize: 16, // жижиг фонт
                             color: Colors.grey,

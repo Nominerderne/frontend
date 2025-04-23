@@ -43,6 +43,7 @@ dependencies:
   shared_preferences: ^2.5.3
   audioplayers: ^5.0.0
   just_audio: ^0.9.35
+  lottie: ^2.6.0
   
 dev_dependencies:
   flutter_test:

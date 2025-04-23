@@ -1,4 +1,3 @@
-// home.dart
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:ebook_app/pages/favorite/favorite.dart';
 import 'package:ebook_app/pages/favorite/favorite_service.dart';
@@ -77,9 +76,32 @@ class _HomePageState extends State<HomePage> {
     ];
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.transparent,
       appBar: _buildAppBar(),
-      body: pages[bottomIndex],
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color.fromARGB(255, 253, 253, 253), // Цэлмэг тэнгэрийн өнгө
+                    Color.fromARGB(255, 252, 252, 252), // Илүү цайвар доош
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Positioned.fill(
+            child: Container(
+              color: Colors.white.withOpacity(0.05), // Бүрэлзүүр/blur effect
+            ),
+          ),
+          pages[bottomIndex],
+        ],
+      ),
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
@@ -144,7 +166,7 @@ class _HomePageState extends State<HomePage> {
 
   AppBar _buildAppBar() {
     return AppBar(
-      backgroundColor: const Color.fromARGB(255, 122, 189, 248),
+      backgroundColor: const Color.fromARGB(255, 75, 162, 238),
       elevation: 0,
       automaticallyImplyLeading: false,
       title: Row(
@@ -188,8 +210,8 @@ class _HomePageState extends State<HomePage> {
     ];
 
     return CurvedNavigationBar(
-      backgroundColor: Colors.white,
-      color: const Color.fromARGB(255, 122, 189, 248),
+      backgroundColor: Colors.transparent,
+      color: const Color.fromARGB(255, 75, 162, 238),
       buttonBackgroundColor: Colors.blueAccent,
       height: 60,
       items: bottoms,

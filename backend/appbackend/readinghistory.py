@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from backend.settings import connectDB, disconnectDB, sendResponse
 import json
 
+# Үзсэн түүх авах
 def dt_getreadinghistory(request):
     jsons = json.loads(request.body)
     action = jsons.get('action', 'no action')
@@ -12,11 +13,15 @@ def dt_getreadinghistory(request):
     try:
         cursor = myConn.cursor()
         query = """
-            SELECT rh.viewed_at AS watched_at, b.id AS book_id, b.title, b.name, b.img_url
+            SELECT rh.read_date AS watched_at,
+                   b.id AS book_id,
+                   b.title,
+                   b.name,
+                   b.img_url
             FROM readinghistory rh
             JOIN books b ON rh.book_id = b.id
             WHERE rh.user_id = %s
-            ORDER BY rh.viewed_at DESC;
+            ORDER BY rh.read_date DESC;
         """
         cursor.execute(query, [user_id])
         columns = cursor.description
@@ -27,11 +32,12 @@ def dt_getreadinghistory(request):
         cursor.close()
         return sendResponse(request, 200, rows, action)
     except Exception as e:
-        print("Error fetching reading history:", e)
+        print("❌ Error fetching reading history:", e)
         return sendResponse(request, 5000, [], action)
     finally:
         disconnectDB(myConn)
 
+# Үзсэн түүх хадгалах
 def dt_addreadinghistory(request):
     jsons = json.loads(request.body)
     action = jsons.get("action", "no action")
@@ -42,18 +48,19 @@ def dt_addreadinghistory(request):
     try:
         cursor = myConn.cursor()
         cursor.execute("""
-            INSERT INTO readinghistory (user_id, book_id, viewed_at)
-            VALUES (%s, %s, CURRENT_TIMESTAMP)
+            INSERT INTO readinghistory (user_id, book_id, read_date)
+            VALUES (%s, %s, CURRENT_DATE)
         """, [user_id, book_id])
         myConn.commit()
         cursor.close()
         return sendResponse(request, 200, {"message": "Saved"}, action)
     except Exception as e:
-        print("Error saving reading history:", e)
+        print("❌ Error saving reading history:", e)
         return sendResponse(request, 5000, [], action)
     finally:
         disconnectDB(myConn)
 
+# POST handler
 @csrf_exempt
 def editcheckService(request):
     if request.method == 'POST':

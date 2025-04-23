@@ -39,7 +39,7 @@ class LoginScreen extends StatelessWidget {
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/log.jpeg'),
+            image: AssetImage('assets/images/loginn.png'),
             fit: BoxFit.cover,
           ),
         ),
@@ -175,7 +175,7 @@ class _LoginPageState extends State<LoginPage> {
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/logg.png'),
+                image: AssetImage('assets/images/loginn.png'),
                 fit: BoxFit.cover,
               ),
             ),

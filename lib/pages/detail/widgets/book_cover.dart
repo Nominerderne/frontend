@@ -21,7 +21,7 @@ class _BookCoverState extends State<BookCover> {
   late List<String> altImageUrls;
   Timer? _timer;
   bool isAudioPlaying = false;
-  int imageChangeInterval = 10;
+  int imageChangeInterval = 25;
 
   Duration _currentPosition = Duration.zero;
   Duration _totalDuration = Duration.zero;
