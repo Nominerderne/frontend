@@ -1,4 +1,5 @@
 from django.urls import path
+from django.contrib import admin
 from appbackend import auth, edituser, book, search, favorite, review, comment, readinghistory
 from sendfile import sendfile
 from django.http import HttpResponseNotFound
@@ -12,6 +13,7 @@ def media_file(request, path):
     except FileNotFoundError:
         return HttpResponseNotFound("File not found")
 urlpatterns = [
+     path('admin/', admin.site.urls),
     path('user/', auth.checkService),
     path('useredit/', edituser.editcheckService),
     path('book/', book.editcheckService),

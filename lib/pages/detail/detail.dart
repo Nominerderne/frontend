@@ -1,7 +1,6 @@
 import 'package:ebook_app/constants/colors.dart';
 import 'package:ebook_app/models/book.dart';
 import 'package:ebook_app/pages/detail/widgets/book_cover.dart';
-
 import 'package:ebook_app/pages/detail/widgets/book_review.dart';
 import 'package:flutter/material.dart';
 // import 'package:intl/intl.dart'; // Make sure to import this for DateFormat
@@ -24,15 +23,14 @@ class DetailPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    book.type.toUpperCase(),
-                    style: const TextStyle(
-                      color: Colors.deepOrange,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 24,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
+                  // Text(
+                  //   book.type.toUpperCase(),
+                  //   style: const TextStyle(
+                  //     color: Colors.deepOrange,
+                  //     fontWeight: FontWeight.bold,
+                  //     fontSize: 24,
+                  //   ),
+                  // ),
                   RichText(
                     text: TextSpan(
                       children: [

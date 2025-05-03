@@ -1,5 +1,9 @@
+//book_audio_player.dart
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:just_audio/just_audio.dart';
+
+import 'package:just_audio/just_audio.dart' as ja;
+import 'package:audioplayers/audioplayers.dart' as ap;
 
 class BookAudioPlayer extends StatefulWidget {
   final String audioUrl;
@@ -10,22 +14,26 @@ class BookAudioPlayer extends StatefulWidget {
 }
 
 class _BookAudioPlayerState extends State<BookAudioPlayer> {
-  late AudioPlayer _player;
+  ja.AudioPlayer? justAudioPlayer;
+  ap.AudioPlayer? audioPlayersWeb;
 
   @override
   void initState() {
     super.initState();
-    _player = AudioPlayer();
 
-    // URL-г оноож байна
-    _player.setUrl(widget.audioUrl).catchError((error) {
-      print("Аудио ачааллахад алдаа: $error");
-    });
+    if (kIsWeb) {
+      audioPlayersWeb = ap.AudioPlayer();
+      audioPlayersWeb!.setSourceUrl(widget.audioUrl);
+    } else {
+      justAudioPlayer = ja.AudioPlayer();
+      justAudioPlayer!.setUrl(widget.audioUrl);
+    }
   }
 
   @override
   void dispose() {
-    _player.dispose();
+    justAudioPlayer?.dispose();
+    audioPlayersWeb?.dispose();
     super.dispose();
   }
 
@@ -41,11 +49,23 @@ class _BookAudioPlayerState extends State<BookAudioPlayer> {
           children: [
             IconButton(
               icon: const Icon(Icons.play_arrow, size: 30),
-              onPressed: () => _player.play(),
+              onPressed: () {
+                if (kIsWeb) {
+                  audioPlayersWeb?.resume();
+                } else {
+                  justAudioPlayer?.play();
+                }
+              },
             ),
             IconButton(
               icon: const Icon(Icons.pause, size: 30),
-              onPressed: () => _player.pause(),
+              onPressed: () {
+                if (kIsWeb) {
+                  audioPlayersWeb?.pause();
+                } else {
+                  justAudioPlayer?.pause();
+                }
+              },
             ),
           ],
         ),
