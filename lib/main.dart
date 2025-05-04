@@ -10,6 +10,8 @@ void main() {
   runApp(App());
 }
 
+bool _obscurePassword = true;
+
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -218,9 +220,10 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     SizedBox(height: 10),
+
                     TextField(
                       controller: _passwordController,
-                      obscureText: true,
+                      obscureText: _obscurePassword,
                       style: TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         labelText: 'Нууц үг',
@@ -228,8 +231,22 @@ class _LoginPageState extends State<LoginPage> {
                         enabledBorder: UnderlineInputBorder(
                           borderSide: BorderSide(color: Colors.white),
                         ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
                       ),
                     ),
+
                     SizedBox(height: 30),
                     ElevatedButton(
                       onPressed: login,
