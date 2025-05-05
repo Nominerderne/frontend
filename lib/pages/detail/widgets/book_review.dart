@@ -1,12 +1,15 @@
-//book_review.dart
 import 'package:ebook_app/models/book.dart';
 import 'package:ebook_app/pages/detail/review_service.dart';
+import 'package:ebook_app/pages/favorite/favorite_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class BookReview extends StatefulWidget {
   final Book book;
-  const BookReview(this.book, {Key? key}) : super(key: key);
+  final VoidCallback? onFavoriteChanged;
+
+  const BookReview(this.book, {Key? key, this.onFavoriteChanged})
+    : super(key: key);
 
   @override
   State<BookReview> createState() => _BookReviewState();
@@ -18,11 +21,13 @@ class _BookReviewState extends State<BookReview> {
   List<Map<String, dynamic>> _otherReviews = [];
   String currentUserId = '';
   bool showFullReview = false;
+  bool isFavorite = false;
 
   @override
   void initState() {
     super.initState();
     _loadCurrentUser();
+    _checkIfFavorite();
   }
 
   Future<void> _loadCurrentUser() async {
@@ -43,6 +48,52 @@ class _BookReviewState extends State<BookReview> {
     });
   }
 
+  Future<void> _checkIfFavorite() async {
+    final favorites = await FavoriteService.getFavorites();
+    final bookId = widget.book.id.toString();
+    setState(() {
+      isFavorite = favorites.any((b) => b['id'].toString() == bookId);
+    });
+  }
+
+  Future<void> _toggleFavorite() async {
+    final book = widget.book;
+    final bookId = book.id.toString();
+
+    setState(() {
+      isFavorite = !isFavorite;
+    });
+
+    bool success = false;
+    try {
+      if (isFavorite) {
+        await FavoriteService.addFavorite({
+          'id': book.id,
+          'title': book.title,
+          'imgUrl': book.imgUrl,
+          'name': book.name,
+        });
+        success = true;
+      } else {
+        await FavoriteService.removeFavorite(bookId);
+        success = true;
+      }
+    } catch (e) {
+      success = false;
+    }
+
+    if (success) {
+      await _checkIfFavorite();
+      if (widget.onFavoriteChanged != null) {
+        widget.onFavoriteChanged!();
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Хадгалах үед алдаа гарлаа')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final book = widget.book;
@@ -54,10 +105,10 @@ class _BookReviewState extends State<BookReview> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildInteractiveStars(),
-          // Review товч бичвэр
+          _buildInteractiveStarsWithFavorite(),
           Text(
             showFullReview ? book.review : shortReview,
+            textAlign: TextAlign.justify, //text 2 tal zeregtsvvlex
             style: const TextStyle(
               color: Colors.black,
               fontSize: 16,
@@ -77,14 +128,11 @@ class _BookReviewState extends State<BookReview> {
               ),
             ),
           const SizedBox(height: 8),
-
           const Text(
             'Сэтгэгдэл:',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
           const SizedBox(height: 8),
-
-          // Сэтгэгдэл бичих хэсэг
           Row(
             children: [
               Expanded(
@@ -133,7 +181,6 @@ class _BookReviewState extends State<BookReview> {
               ),
             ],
           ),
-
           if (_otherReviews.isEmpty)
             const Text("Одоогоор сэтгэгдэл алга байна."),
           ..._otherReviews.map((review) {
@@ -174,30 +221,41 @@ class _BookReviewState extends State<BookReview> {
     );
   }
 
-  Widget _buildInteractiveStars() {
+  Widget _buildInteractiveStarsWithFavorite() {
     return Row(
-      children: List.generate(5, (index) {
-        return IconButton(
+      children: [
+        ...List.generate(5, (index) {
+          return IconButton(
+            icon: Icon(
+              Icons.star,
+              size: 24,
+              color: index < userRating ? Colors.amber : Colors.grey,
+            ),
+            onPressed: () async {
+              setState(() {
+                userRating = index + 1;
+              });
+
+              await ReviewService.submitRating(
+                bookId: int.tryParse(widget.book.id) ?? 0,
+                rating: userRating,
+                comment: _commentText,
+              );
+
+              await _loadReviews();
+            },
+          );
+        }),
+        const SizedBox(width: 200), // Энд зай нэмсэн
+        IconButton(
           icon: Icon(
-            Icons.star,
+            isFavorite ? Icons.favorite : Icons.favorite_border,
+            color: isFavorite ? Colors.red : Colors.grey,
             size: 24,
-            color: index < userRating ? Colors.amber : Colors.grey,
           ),
-          onPressed: () async {
-            setState(() {
-              userRating = index + 1;
-            });
-
-            await ReviewService.submitRating(
-              bookId: int.tryParse(widget.book.id) ?? 0,
-              rating: userRating,
-              comment: _commentText,
-            );
-
-            await _loadReviews();
-          },
-        );
-      }),
+          onPressed: _toggleFavorite,
+        ),
+      ],
     );
   }
 }
