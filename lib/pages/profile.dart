@@ -19,7 +19,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
   String profileImageBase64 = '';
   Uint8List? profileImageBytes;
-
   bool isLoading = false;
 
   @override
@@ -50,18 +49,16 @@ class _ProfilePageState extends State<ProfilePage> {
             profileImageBase64 =
                 responseData['data'][0]['profileimagebase64'] ?? "";
 
-            if (profileImageBase64.isNotEmpty &&
-                profileImageBase64.contains("base64")) {
+            if (profileImageBase64.isNotEmpty) {
               try {
-                profileImageBytes = base64Decode(
-                  profileImageBase64.split(',').last,
-                );
+                final rawBase64 =
+                    profileImageBase64.contains(',')
+                        ? profileImageBase64.split(',').last
+                        : profileImageBase64;
+                profileImageBytes = base64Decode(rawBase64);
               } catch (e) {
                 profileImageBytes = null;
-                print("Base64 decoding алдаа: $e");
               }
-            } else {
-              profileImageBytes = null;
             }
           });
         } else {
@@ -125,6 +122,11 @@ class _ProfilePageState extends State<ProfilePage> {
       if (response.statusCode == 200) {
         final successData = json.decode(response.body);
         if (successData['resultCode'] == 200) {
+          // SharedPreferences-д хадгалах
+          await prefs.setString('username', usernameController.text);
+          await prefs.setString('email', emailController.text);
+          await prefs.setString('profileImage', profileImageBase64);
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Мэдээлэл амжилттай шинэчлэгдлээ')),
           );
@@ -152,6 +154,13 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Профайл засах'),
+        backgroundColor: Color.fromARGB(255, 75, 162, 238),
+        foregroundColor: Colors.black87,
+        elevation: 0,
+      ),
+      backgroundColor: Color.fromARGB(255, 208, 232, 255),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child:
@@ -191,12 +200,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   child: Icon(
                                     Icons.camera_alt,
                                     size: 20,
-                                    color: const Color.fromARGB(
-                                      255,
-                                      89,
-                                      139,
-                                      225,
-                                    ),
+                                    color: Colors.blue,
                                   ),
                                 ),
                               ),
@@ -204,7 +208,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20),
                       TextFormField(
                         controller: usernameController,
                         decoration: InputDecoration(
@@ -212,7 +216,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           border: OutlineInputBorder(),
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12),
                       TextFormField(
                         controller: emailController,
                         decoration: InputDecoration(
@@ -220,7 +224,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           border: OutlineInputBorder(),
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12),
                       TextFormField(
                         controller: bioController,
                         maxLines: 3,
@@ -229,13 +233,14 @@ class _ProfilePageState extends State<ProfilePage> {
                           border: OutlineInputBorder(),
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20),
                       ElevatedButton.icon(
                         onPressed: updateUserProfile,
                         icon: Icon(Icons.save),
                         label: Text("Хадгалах"),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blueAccent,
+                          foregroundColor: Colors.black, // TEXT + ICON өнгө
                           padding: EdgeInsets.symmetric(
                             horizontal: 24,
                             vertical: 12,

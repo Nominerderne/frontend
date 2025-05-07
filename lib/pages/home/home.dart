@@ -1,7 +1,7 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:ebook_app/pages/favorite/favorite.dart';
 import 'package:ebook_app/pages/favorite/favorite_service.dart';
-import 'package:ebook_app/pages/profile.dart';
+import 'package:ebook_app/pages/profile1.dart';
 import 'package:ebook_app/pages/search.dart';
 import 'package:flutter/material.dart';
 import 'package:ebook_app/constants/colors.dart';
@@ -42,6 +42,13 @@ class _HomePageState extends State<HomePage> {
     setState(() {});
   }
 
+  Future<void> _handleFavoriteChanged() async {
+    final updated = await FavoriteService.getFavorites();
+    setState(() {
+      favoriteBooks = updated;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
@@ -49,30 +56,27 @@ class _HomePageState extends State<HomePage> {
         children: [
           _buildStorySlider(),
           Expanded(
-            child: BookStaggeredGridView(tabIndex, pageController, (
-              int index,
-              List<Map<String, dynamic>> updatedFavorites,
-            ) {
-              setState(() {
-                tabIndex = index;
-                favoriteBooks = updatedFavorites;
-              });
-            }, favoriteBooks),
+            child: BookStaggeredGridView(
+              tabIndex,
+              pageController,
+              (int index, List<Map<String, dynamic>> updatedFavorites) {
+                setState(() {
+                  tabIndex = index;
+                  favoriteBooks = updatedFavorites;
+                });
+              },
+              favoriteBooks,
+              onFavoriteChanged: _handleFavoriteChanged,
+            ),
           ),
         ],
       ),
       FavoritePage(
-        favoriteBooks: favoriteBooks,
         userId: widget.userId,
-        onFavoriteChanged: () async {
-          final updatedFavorites = await FavoriteService.getFavorites();
-          setState(() {
-            favoriteBooks = updatedFavorites;
-          });
-        },
+        onFavoriteChanged: _handleFavoriteChanged,
       ),
       BichlegPage(),
-      ProfilePage(),
+      Profile1Page(),
     ];
 
     return Scaffold(
@@ -87,17 +91,15 @@ class _HomePageState extends State<HomePage> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Color.fromARGB(255, 253, 253, 253), // Цэлмэг тэнгэрийн өнгө
-                    Color.fromARGB(255, 252, 252, 252), // Илүү цайвар доош
+                    Color.fromARGB(255, 253, 253, 253),
+                    Color.fromARGB(255, 252, 252, 252),
                   ],
                 ),
               ),
             ),
           ),
           Positioned.fill(
-            child: Container(
-              color: Colors.white.withOpacity(0.05), // Бүрэлзүүр/blur effect
-            ),
+            child: Container(color: Colors.white.withOpacity(0.05)),
           ),
           pages[bottomIndex],
         ],
@@ -127,7 +129,11 @@ class _HomePageState extends State<HomePage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => DetailPage(limitedStories[index]),
+                      builder:
+                          (context) => DetailPage(
+                            limitedStories[index],
+                            onFavoriteChanged: _handleFavoriteChanged,
+                          ),
                     ),
                   );
                 },

@@ -12,7 +12,7 @@ class BookItem extends StatefulWidget {
     Key? key,
     required this.book,
     required this.isFavorite,
-    this.onFavoriteToggled, // ← энэ мөр дутаж байсан
+    this.onFavoriteToggled,
   }) : super(key: key);
 
   @override
@@ -44,7 +44,7 @@ class _BookItemState extends State<BookItem> {
       await FavoriteService.removeFavorite(widget.book.id);
     }
 
-    // Энд callback дуудаж байгаа хэсэг хамгийн чухал
+    // Callback — HomePage, FavoritePage гээд бүх дэлгэцүүдэд мэдэгдэх
     if (widget.onFavoriteToggled != null) {
       widget.onFavoriteToggled!(isFavorite);
     }
@@ -55,7 +55,17 @@ class _BookItemState extends State<BookItem> {
     return GestureDetector(
       onTap:
           () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => DetailPage(widget.book)),
+            MaterialPageRoute(
+              builder:
+                  (context) => DetailPage(
+                    widget.book,
+                    onFavoriteChanged: () {
+                      if (widget.onFavoriteToggled != null) {
+                        widget.onFavoriteToggled!(isFavorite);
+                      }
+                    },
+                  ),
+            ),
           ),
       child: Container(
         width: 160,

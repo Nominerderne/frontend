@@ -1,4 +1,3 @@
-//book_staggered_gridview.dart
 import 'package:ebook_app/models/book.dart';
 import 'package:ebook_app/pages/favorite/favorite_service.dart';
 import 'package:flutter/material.dart';
@@ -6,18 +5,19 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'book_item.dart';
 
 class BookStaggeredGridView extends StatelessWidget {
-  final int selected;
+  final int tabIndex;
   final PageController pageController;
+  final Function(int index, List<Map<String, dynamic>> updatedFavorites)
+  onTabChanged;
   final List<Map<String, dynamic>> favoriteBooks;
-  final VoidCallback? onFavoriteToggled;
-  final Function(int index, List<Map<String, dynamic>> favorites) callback;
+  final VoidCallback? onFavoriteChanged;
 
-  BookStaggeredGridView(
-    this.selected,
+  const BookStaggeredGridView(
+    this.tabIndex,
     this.pageController,
-    this.callback,
+    this.onTabChanged,
     this.favoriteBooks, {
-    this.onFavoriteToggled,
+    this.onFavoriteChanged,
     Key? key,
   }) : super(key: key);
 
@@ -48,7 +48,7 @@ class BookStaggeredGridView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: PageView(
             controller: pageController,
-            onPageChanged: (index) => callback(index, favoriteBooks),
+            onPageChanged: (index) => onTabChanged(index, favoriteBooks),
             physics: const NeverScrollableScrollPhysics(),
             children: [
               MasonryGridView.count(
@@ -59,7 +59,7 @@ class BookStaggeredGridView extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final book = bookList[index];
                   final isFavorite = favoriteBooks.any(
-                    (favBook) => favBook['id'] == book.id,
+                    (favBook) => favBook['id'].toString() == book.id.toString(),
                   );
 
                   return BookItem(
@@ -68,12 +68,15 @@ class BookStaggeredGridView extends StatelessWidget {
                     onFavoriteToggled: (isNowFavorite) async {
                       final updatedFavorites =
                           await FavoriteService.getFavorites();
-                      callback(selected, updatedFavorites);
+                      onTabChanged(tabIndex, updatedFavorites);
+                      if (onFavoriteChanged != null) {
+                        onFavoriteChanged!();
+                      }
                     },
                   );
                 },
               ),
-              Container(), // өөр төрлүүдийг дараа нэмэх
+              Container(),
             ],
           ),
         );
