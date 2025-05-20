@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 
 class HistoryService {
   static Future<void> saveReadingHistory(int userId, int bookId) async {
-    final url = Uri.parse("http://172.20.10.5:8000/readinghistory/");
+    final url = Uri.parse("http://0.0.0.0:8000/readinghistory/");
 
     final response = await http.post(
       url,

@@ -9,7 +9,7 @@ Future<String?> _getUserId() async {
 }
 
 class FavoriteService {
-  static const String baseUrl = 'http://172.20.10.5:8000/favorite/';
+  static const String baseUrl = 'http://0.0.0.0:8000/favorite/';
 
   static Future<void> addFavorite(Map<String, dynamic> book) async {
     final userId = await _getUserId();

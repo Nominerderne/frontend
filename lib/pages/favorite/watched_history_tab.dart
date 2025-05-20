@@ -24,7 +24,7 @@ class _WatchedHistoryTabState extends State<WatchedHistoryTab> {
   }
 
   Future<void> fetchWatchedBooks() async {
-    const String apiUrl = 'http://172.20.10.5:8000/readinghistory/';
+    const String apiUrl = 'http://0.0.0.0:8000/readinghistory/';
 
     try {
       final response = await http.post(
